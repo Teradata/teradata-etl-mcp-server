@@ -3,7 +3,7 @@
 A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operations, integrating Teradata, Airbyte, Apache Airflow, and dbt for end-to-end data pipeline management.
 
 > **📦 Install as VS Code Extension:**  
-> Search for **"Teradata ETL MCP"** in the VS Code Marketplace. The extension automates Python setup and provides a guided configuration wizard. [Marketplace Link](https://marketplace.visualstudio.com/items?itemName=Teradata.elt-mcp-server)
+> Search for **"Teradata ETL MCP"** in the VS Code Marketplace. The extension automates Python setup and provides a guided configuration wizard. [Marketplace Link](https://marketplace.visualstudio.com/items?itemName=Teradata.etl-mcp-server)
 
 ## Table of Contents
 
@@ -11,6 +11,7 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 - [Features](#features)
 - [Architecture](#architecture)
 - [Installation](#installation)
+- [SSH Setup](#ssh-setup-bidirectional)
 - [Configuration](#configuration)
 - [Connection Profiles](#connection-profiles)
 - [Usage](#usage)
@@ -19,6 +20,8 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 - [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Documentation](#documentation)
 - [License](#license)
 
 ---
@@ -27,14 +30,14 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/Teradata-PE/devtools-elt-mcp-server.git
-cd devtools-elt-mcp-server
+git clone https://github.com/Teradata/teradata-etl-mcp-server.git
+cd teradata-etl-mcp-server
 pip install -e ".[dev,all]"
 
 # 2. Create a workspace folder outside the source repo
-mkdir ../elt-mcp-test && cd ../elt-mcp-test
-cp ../devtools-elt-mcp-server/.env.example .env
-cp ../devtools-elt-mcp-server/connections.yaml.example connections.yaml
+mkdir ../teradata-etl-mcp-test && cd ../teradata-etl-mcp-test
+cp ../teradata-etl-mcp-server/.env.example .env
+cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
 
 # 3. Edit .env — only Teradata credentials are required to start
 #    Required: TERADATA_HOST, TERADATA_USERNAME, TERADATA_PASSWORD
@@ -42,14 +45,14 @@ cp ../devtools-elt-mcp-server/connections.yaml.example connections.yaml
 # 4. Edit connections.yaml — update hosts/credentials for your sources
 
 # 5. Configure your MCP client (.vscode/mcp.json or claude_desktop_config.json)
-#    { "servers": { "elt-mcp": { "command": "elt-mcp-server",
-#      "args": ["--env-file", "/absolute/path/to/elt-mcp-test/.env"] } } }
+#    { "servers": { "etl-mcp": { "command": "etl-mcp-server",
+#      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"] } } }
 
 # 6. Start the server
-elt-mcp-server --env-file .env
+etl-mcp-server --env-file .env
 ```
 
-> **Minimum requirement**: Python 3.10+, a Teradata host, and an MCP client (Claude Desktop or VS Code with Claude extension). Airflow, Airbyte, and dbt are all optional.
+> **Minimum requirement**: Python 3.10+, a Teradata host, and an MCP client (Claude Desktop or VS Code with Copilot extension). Airflow, Airbyte, and dbt are all optional.
 
 ---
 
@@ -84,36 +87,6 @@ LLM calls: create_intelligent_airbyte_pipeline(
 Server: resolves credentials from connections.yaml, creates pipeline
 Response: sanitized -- LLM sees success status but NO passwords
 ```
-
----
-
-## Visual Guide
-
-See the Teradata ETL MCP Extension in action with these interactive demonstrations:
-
-### Setup & Configuration
-![Setup Teradata Credentials](media/gifs/eltmcpserver_setup.gif)
-*Initialize Teradata connections and configure the MCP server for your environment.*
-
-### CSV Data Loading
-![Load CSV Files](media/gifs/eltmcpserver_csvdataload.gif)
-*Upload and transform CSV files into Teradata tables with intelligent schema detection.*
-
-### dbt Transformations
-![Run dbt Projects](media/gifs/eltmcpserver_dbt.gif)
-*Generate and execute dbt models for data transformation and testing.*
-
-### Airbyte Integration
-![Airbyte Data Replication](media/gifs/eltmcpserver_airbyte.gif)
-*Create pipelines to replicate data from various sources (Postgres, MySQL, REST APIs, etc.) to Teradata.*
-
-### Airflow Orchestration
-![Airflow DAG Orchestration](media/gifs/eltmcpserver_airflow.gif)
-*Orchestrate complex workflows combining Airbyte and dbt with Airflow scheduling and monitoring.*
-
-### Command Palette
-![MCP Server Commands](media/gifs/eltmcpserver_command.gif)
-*Explore all available MCP tools and commands via the VS Code command palette.*
 
 ---
 
@@ -175,7 +148,7 @@ See the Teradata ETL MCP Extension in action with these interactive demonstratio
 
 ## Installation
 
-> **Audience**: End users who want to run the MCP server and use it with an LLM client (Claude Desktop, Claude Code, etc.).
+> **Audience**: End users who want to run the MCP server and use it with an LLM client (Copilot, Claude Desktop, Claude Code, etc.).
 
 ### Prerequisites
 
@@ -194,8 +167,8 @@ See the Teradata ETL MCP Extension in action with these interactive demonstratio
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd devtools-elt-mcp-server
+git clone https://github.com/Teradata/teradata-etl-mcp-server.git
+cd teradata-etl-mcp-server
 
 # 2. Create and activate a virtual environment
 python -m venv .venv
@@ -206,14 +179,11 @@ python -m venv .venv
 # Linux/macOS
 source .venv/bin/activate
 
-# 3. Install the package with all extras (includes paramiko for SSH deployment)
+# 3. Install the package with all extras (includes all optional dependencies)
 pip install -e ".[dev,all]"
 
-# 4. (Optional) Install specific extras only
-pip install -e ".[lineage]"      # Lineage visualization (graphviz)
-pip install -e ".[ml]"           # ML predictions (numpy, scikit-learn)
-pip install -e ".[monitoring]"   # System monitoring (psutil)
-pip install -e ".[all]"          # Everything above
+```
+
 ```
 
 ### Post-install Setup
@@ -222,12 +192,12 @@ pip install -e ".[all]"          # Everything above
 
 ```bash
 # 5. Create a dedicated workspace folder outside the source repo
-mkdir ../elt-mcp-test
-cd ../elt-mcp-test
+mkdir ../teradata-etl-mcp-test
+cd ../teradata-etl-mcp-test
 
 # 6. Copy templates from the source repo
-cp ../devtools-elt-mcp-server/.env.example .env
-cp ../devtools-elt-mcp-server/connections.yaml.example connections.yaml
+cp ../teradata-etl-mcp-server/.env.example .env
+cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
 
 # 7. Edit .env with your Teradata, Airflow, Airbyte, and dbt settings
 # 8. Edit connections.yaml with your connection profiles (see Connection Profiles section)
@@ -242,352 +212,32 @@ python -m elt_mcp_server
 
 ### SSH Setup (Bidirectional)
 
-The system requires **bidirectional SSH** between the MCP client machine and the Airflow server:
+For DAG deployment to Airflow and runtime BTEQ/TdLoad/TPT execution, bidirectional SSH is required between the MCP client and Airflow server.
 
-| Direction | Purpose | When Needed |
-|-----------|---------|-------------|
-| MCP Client → Airflow Server | Deploy generated DAG files via SFTP | Always (for DAG deployment) |
-| Airflow Server → MCP Client | Execute BTEQ/TdLoad/TPT commands remotely via SSH | When using TdLoad, BTEQ, or TPT operators |
+**Complete SSH setup guide:** See [SSH-SETUP.md](SSH-SETUP.md) for detailed platform-specific instructions (Windows, Linux, macOS).
 
-```
-MCP Client Machine                          Airflow Server (Linux)
-+---------------------+                    +---------------------+
-| - MCP Server        | --- SSH/SFTP ----> | - /opt/airflow/dags |
-| - TTU (bteq, tpt,   |   DAG deployment   | - Airflow Scheduler |
-|   tbuild, tdload)   |                    | - Airflow Workers   |
-| - SSH Server        | <--- SSH --------- |                     |
-|   (for runtime)     |  BTEQ/TdLoad exec  |                     |
-+---------------------+                    +---------------------+
-```
+**Key sections covered:**
+- Installing SSH client and server
+- Generating Ed25519 key pairs (both directions)
+- Authorizing keys on both machines
+- File permission configuration
+- SSH config file setup
+- Verification checklist
 
-> **Platform note**: The MCP client can be **Windows** or **Linux/macOS**. The Airflow server is typically **Linux**. Instructions below cover all combinations.
-
-Use **Ed25519** keys (faster and more secure than RSA).
-
----
-
-#### Step 1: Install SSH Client on MCP Client
-
-**Windows:**
-```powershell
-# OpenSSH client is pre-installed on Windows 10/11. Verify:
-ssh -V
-
-# If not available, install:
-Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-```
-
-**Linux/macOS:**
+**Quick reference - environment variables:**
 ```bash
-# Usually pre-installed. Verify:
-ssh -V
-
-# If not available:
-# Ubuntu/Debian
-sudo apt install openssh-client
-# macOS -- built-in, no action needed
-```
-
----
-
-#### Step 2: Install SSH Server on MCP Client (for Runtime SSH)
-
-Airflow needs to SSH **back** to the MCP client to execute BTEQ/TdLoad/TPT commands. This requires an SSH server running on the MCP client.
-
-**Windows (run as Administrator):**
-```powershell
-# Check if OpenSSH Server is already installed
-Get-Service sshd -ErrorAction SilentlyContinue
-
-# If the service exists (even if Stopped), skip Add-WindowsCapability and just start it:
-#   Start-Service sshd
-# Only run the line below if Get-Service sshd returns nothing:
-Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-
-# Start and auto-enable the service
-Start-Service sshd
-Set-Service -Name sshd -StartupType Automatic
-
-# Verify it's running
-Get-Service sshd
-
-# Allow SSH through Windows Firewall (if not already)
-New-NetFirewallRule -Name "OpenSSH-Server" -DisplayName "OpenSSH Server (sshd)" `
-    -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-```
-
-> **Note:** On many Windows 10/11 and Server 2019+ machines, OpenSSH Server is already installed but stopped. Run `Get-Service sshd` first — if it returns `Stopped`, only `Start-Service sshd` is needed.
-
-**Linux:**
-```bash
-# Ubuntu/Debian
-sudo apt install openssh-server
-sudo systemctl enable --now ssh
-
-# RHEL/CentOS
-sudo yum install openssh-server
-sudo systemctl enable --now sshd
-
-# Verify
-sudo systemctl status ssh    # or sshd
-```
-
-**macOS:**
-```bash
-# Enable via System Settings > General > Sharing > Remote Login
-# Or via command line:
-sudo systemsetup -setremotelogin on
-```
-
----
-
-#### Step 3: Generate SSH Keys -- Direction 1 (MCP Client → Airflow)
-
-Generate a key pair **on the MCP client** for deploying DAG files to Airflow.
-
-**Windows (PowerShell):**
-```powershell
-# Create .ssh directory if it doesn't exist
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.ssh"
-
-# Generate Ed25519 key pair (-N '""' skips the passphrase prompt non-interactively)
-ssh-keygen -t ed25519 -f "$env:USERPROFILE\.ssh\id_ed25519_airflow" -C "mcp-to-airflow" -N '""'
-
-# Copy public key to Airflow server
-# Note: 'type | ssh' can silently fail on Windows — use Get-Content + variable instead:
-$pubKey = (Get-Content "$env:USERPROFILE\.ssh\id_ed25519_airflow.pub" -Raw).Trim()
-ssh airflow@<airflow-host> "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '$pubKey' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
-
-# Verify connectivity
-ssh -i "$env:USERPROFILE\.ssh\id_ed25519_airflow" -o BatchMode=yes airflow@<airflow-host> "echo 'DAG deployment SSH OK'"
-```
-
-> **Windows gotcha:** `type file.pub | ssh ...` can silently succeed (exit code 0) but fail to write the key on the remote side. Always use the `Get-Content` + variable method above.
-
-**Linux/macOS:**
-```bash
-# Generate Ed25519 key pair
-ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_airflow -C "mcp-to-airflow"
-# Press Enter for no passphrase (recommended for automated deployment)
-
-# Copy public key to Airflow server
-ssh-copy-id -i ~/.ssh/id_ed25519_airflow.pub airflow@<airflow-host>
-
-# Verify connectivity
-ssh -i ~/.ssh/id_ed25519_airflow airflow@<airflow-host> "echo 'DAG deployment SSH OK'"
-```
-
-Set these in `.env` on the MCP client:
-```bash
+# MCP Client → Airflow (DAG deployment)
 AIRFLOW_REMOTE_HOST=<airflow-host>
 AIRFLOW_REMOTE_USER=airflow
-# Windows: use full path, e.g., C:\Users\YourUser\.ssh\id_ed25519_airflow
-# Linux/macOS: ~/.ssh/id_ed25519_airflow
 AIRFLOW_REMOTE_SSH_KEY=~/.ssh/id_ed25519_airflow
-# AIRFLOW_REMOTE_PASSWORD=          # only if not using key-based auth
+
+# Airflow → MCP Client (runtime execution)
+MCP_CLIENT_SSH_HOST=<your-machine-ip>
+MCP_CLIENT_SSH_USER=<your-username>
+MCP_CLIENT_SSH_KEY_PATH=~/.ssh/id_ed25519_mcp
 ```
 
----
-
-#### Step 4: Generate SSH Keys -- Direction 2 (Airflow → MCP Client)
-
-Generate a key pair **on the Airflow server** for runtime BTEQ/TdLoad/TPT execution on the MCP client.
-
-**On Airflow server (Linux):**
-```bash
-# Switch to the airflow user (the user that runs DAG tasks)
-sudo su - airflow
-
-# First, check if a key already exists — reuse it to avoid key sprawl:
-ls ~/.ssh/
-# Look for any existing id_ed25519_* keys. If one exists for this purpose, skip generation.
-
-# Only generate a new key if none exists:
-ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_mcp -C "airflow-to-mcp"
-
-# Display the public key (you'll need this for the next step)
-cat ~/.ssh/id_ed25519_mcp.pub
-```
-
-> **Tip:** If the Airflow server already has a key (e.g. `id_ed25519_test`), use `cat ~/.ssh/<existing_key>.pub` and reuse it. Update `MCP_CLIENT_SSH_KEY_PATH` in `.env` to match the actual key path found.
-
-**Authorize the key on MCP client -- Windows:**
-```powershell
-# Create .ssh directory if it doesn't exist
-mkdir -Force "$env:USERPROFILE\.ssh"
-
-# Append the public key from Airflow server to authorized_keys
-# Copy the output of 'cat ~/.ssh/id_ed25519_mcp.pub' from Airflow and paste below:
-Add-Content "$env:USERPROFILE\.ssh\authorized_keys" "ssh-ed25519 AAAA...paste-key-here... airflow-to-mcp"
-
-# For Windows OpenSSH, admin users use a different authorized_keys location:
-# If your user is in the Administrators group, use ONLY this file (not ~/.ssh/authorized_keys):
-Set-Content "C:\ProgramData\ssh\administrators_authorized_keys" "ssh-ed25519 AAAA...paste-key-here... airflow-to-mcp" -Encoding utf8
-
-# Fix permissions on administrators_authorized_keys (required by Windows OpenSSH)
-# Without this icacls fix, key auth will be silently rejected even if the key is correct:
-icacls "C:\ProgramData\ssh\administrators_authorized_keys" /inheritance:r /grant "SYSTEM:(F)" /grant "Administrators:(F)"
-```
-
-**Authorize the key on MCP client -- Linux/macOS:**
-```bash
-# Simplest method: ssh-copy-id from the Airflow server
-# On Airflow server:
-ssh-copy-id -i ~/.ssh/id_ed25519_mcp.pub <your-user>@<mcp-client-host>
-
-# Or manually on MCP client:
-mkdir -p ~/.ssh && chmod 700 ~/.ssh
-# Append the public key
-echo "ssh-ed25519 AAAA...paste-key-here... airflow-to-mcp" >> ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/authorized_keys
-```
-
-**Verify from Airflow server:**
-```bash
-# Test SSH to MCP client
-ssh -i ~/.ssh/id_ed25519_mcp -o BatchMode=yes <your-user>@<mcp-client-host> "echo 'Runtime SSH OK'"
-
-# Verify TTU is available on MCP client
-ssh -i ~/.ssh/id_ed25519_mcp <your-user>@<mcp-client-host> "which tbuild || which tdload || where tbuild"
-```
-
-Set these in `.env` on the MCP client:
-```bash
-MCP_CLIENT_SSH_HOST=<mcp-client-host>           # your machine's IP or hostname
-MCP_CLIENT_SSH_USER=<your-user>                  # your username on this machine
-MCP_CLIENT_SSH_PORT=22
-# Use the actual path of the key on the Airflow server — verify with 'ls ~/.ssh/' first
-MCP_CLIENT_SSH_KEY_PATH=~/.ssh/id_ed25519_mcp   # path on the Airflow server
-```
-
-> **Common misconfiguration:** `MCP_CLIENT_SSH_KEY_PATH` must match the exact path of the private key **on the Airflow server**, not on the Windows machine. Always confirm with `ls ~/.ssh/` on the Airflow server after setup.
-
----
-
-#### Step 5: File Permissions
-
-**Linux/macOS (both machines):**
-```bash
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/id_ed25519_*           # private keys
-chmod 644 ~/.ssh/id_ed25519_*.pub       # public keys
-chmod 600 ~/.ssh/authorized_keys
-```
-
-**Windows (MCP client):**
-```powershell
-# Windows OpenSSH enforces permissions via ACLs. Private keys should only be
-# readable by the owner. Right-click the key file > Properties > Security:
-#   - Remove all users except your account and SYSTEM
-#   - Or use icacls:
-icacls "$env:USERPROFILE\.ssh\id_ed25519_airflow" /inheritance:r /grant "${env:USERNAME}:(R)"
-```
-
----
-
-#### Optional: SSH Config File
-
-Add entries for convenience (avoids typing full paths each time).
-
-**On MCP client (`~/.ssh/config` or `%USERPROFILE%\.ssh\config`):**
-```
-Host airflow
-    HostName <airflow-host>
-    User airflow
-    IdentityFile ~/.ssh/id_ed25519_airflow
-    Port 22
-    StrictHostKeyChecking accept-new
-```
-
-**On Airflow server (`~/.ssh/config`):**
-```
-Host mcp-client
-    HostName <mcp-client-host>
-    User <your-user>
-    IdentityFile ~/.ssh/id_ed25519_mcp
-    Port 22
-    StrictHostKeyChecking accept-new
-```
-
----
-
-#### Verification Checklist
-
-| Check | Command (run from) | Expected Output |
-|-------|-------------------|----------------|
-| DAG deployment SSH | MCP client: `ssh airflow@<airflow-host> "ls /opt/airflow/dags/"` | Lists DAG directory |
-| Runtime SSH | Airflow: `ssh <user>@<mcp-client-host> "echo OK"` | `OK` |
-| TTU available | Airflow: `ssh <user>@<mcp-client-host> "tbuild -v"` | TPT version info |
-| BTEQ available | Airflow: `ssh <user>@<mcp-client-host> "bteq < /dev/null"` | BTEQ banner |
-
-#### SSH Host-Key Verification
-
-All MCP tool actions that open an SSH/SFTP connection accept a
-`strict_host_key_checking` parameter. The full set:
-
-| Tool | Action | Connection use |
-|---|---|---|
-| `pipeline_deploy` | `deploy_dags` | SFTP transfer of generated DAG files to the Airflow server |
-| `pipeline_deploy` | `deploy_complete` | Full pipeline transfer (DAG + TPT + BTEQ + dbt + CSV) |
-| `pipeline_control` | `update_schedule` (when `auto_deploy=True`) | SFTP fetch of the remote DAG, edit, re-upload |
-| `pipeline_control` | `delete` | Remote DAG file removal |
-
-**Default: `False`** — appropriate for single-user, trusted-host setups where
-the operator controls both the MCP client and the Airflow target.
-
-When `strict_host_key_checking=False`, the server logs a `WARNING` on every
-SSH connection. This is intentional and expected — the warning names the
-specific code path (e.g., `deploy_dags`, `fetch_dag`, `delete_pipeline`) so
-operators can audit which paths are exposed. Example log line:
-
-```
-WARNING  SSH host-key verification is DISABLED for deploy_dags
-(strict_host_key_checking=False). This exposes you to MITM attacks.
-```
-
-**Upgrading to strict mode (recommended for shared/production setups):**
-
-1. Pre-populate the Airflow server's host key in the MCP client user's known_hosts:
-
-   ```bash
-   # Git Bash / PowerShell / Linux / macOS
-   ssh-keyscan -t ed25519,rsa <airflow-host> >> ~/.ssh/known_hosts
-   ```
-
-   ```cmd
-   :: Windows cmd.exe
-   ssh-keyscan -t ed25519,rsa <airflow-host> >> %USERPROFILE%\.ssh\known_hosts
-   ```
-
-2. Pass `strict_host_key_checking=True` when invoking any of the SSH-enabled
-   actions listed above. Example for `pipeline_deploy`:
-
-   ```json
-   {
-     "tool": "pipeline_deploy",
-     "action": "deploy_dags",
-     "pipeline_name": "my_pipeline",
-     "strict_host_key_checking": true
-   }
-   ```
-
-3. Verify no `SSH host-key verification is DISABLED` warning appears in logs
-   after the call — only a clean success.
-
-**Threat model note:** the LLM driving the MCP server is considered untrusted
-input. Host-key verification is the main defense against a compromised
-network path injecting a substituted Airflow server. If your deployment is
-single-user on a trusted LAN, the default is acceptable; any networked or
-multi-user deployment should flip to strict.
-
-**Behavior change (Finding #6):** the `deploy_complete` action previously
-ignored `strict_host_key_checking` on its paramiko transfer step and silently
-used auto-accept regardless of the caller's setting. It now honors the flag
-consistently across all internal SSH paths. If you were passing `strict=True`
-before and your target host's key isn't in known_hosts, connections will now
-fail where they previously succeeded silently — run the `ssh-keyscan` step
-above to fix. An `INFO` log line surfaces on the first strict-mode transfer
-so the cause is immediately grep-able.
+**Host-key verification:** DAG deployment tools support strict SSH host-key verification via the `strict_host_key_checking` parameter. See [SSH-SETUP.md § SSH Host-Key Verification](SSH-SETUP.md) for security best practices.
 
 ---
 
@@ -596,7 +246,7 @@ so the cause is immediately grep-able.
 > **SSH host-key verification** for DAG deployment is controlled per-call via
 > the `strict_host_key_checking` tool parameter (default `False`, with a
 > WARNING logged on every connection). See
-> [SSH Host-Key Verification](#ssh-host-key-verification) for the threat
+> [SSH-SETUP.md § SSH Host-Key Verification](SSH-SETUP.md) for the threat
 > model and upgrade steps.
 
 ### Environment Variables (`.env`)
@@ -657,9 +307,8 @@ Key sections in `.env.example`:
 | | `PIPELINE_DEFAULT_SCHEDULE_INTERVAL` | Default schedule for generated DAGs | No (default: `@daily`) |
 | | `PIPELINE_GENERATE_DBT_BY_DEFAULT` | Auto-generate dbt models with pipelines | No (default: `true`) |
 | **MCP Server** | `MCP_LOG_LEVEL` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` | No (default: `INFO`) |
-| | `MCP_LOG_FILE` | Log file path | No (default: `./logs/elt-mcp-server.log`) |
+| | `MCP_LOG_FILE` | Log file path | No (default: `./logs/etl-mcp-server.log`) |
 | | `MCP_FAIL_FAST_ON_STARTUP` | Crash on connectivity failure at startup | No (default: `false`) |
-| | `MCP_REDIS_URL` | Redis URL for distributed circuit breaker | No |
 | **TTU** | `TTU_ENABLED` | Enable local TPT/BTEQ/TdLoad execution | No (default: `false`) |
 | | `TTU_TTU_VERSION` | TTU version (e.g., `17.20`); auto-detected if not set | No |
 | | `TTU_TPT_BINARY_PATH` | Path to `tbuild` binary (auto-detected from version) | No |
@@ -756,7 +405,7 @@ aliases:
 python -m elt_mcp_server
 
 # Or using the console script
-elt-mcp-server
+etl-mcp-server
 ```
 
 ### Using with Claude Desktop
@@ -766,9 +415,9 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "elt-mcp": {
-      "command": "elt-mcp-server",
-      "args": ["--env-file", "/absolute/path/to/elt-mcp-test/.env"]
+    "etl-mcp": {
+      "command": "etl-mcp-server",
+      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"]
     }
   }
 }
@@ -783,15 +432,15 @@ Add to your VS Code MCP configuration (`.vscode/mcp.json` in your workspace):
 ```json
 {
   "servers": {
-    "elt-mcp": {
-      "command": "elt-mcp-server",
-      "args": ["--env-file", "/absolute/path/to/elt-mcp-test/.env"]
+    "etl-mcp": {
+      "command": "etl-mcp-server",
+      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"]
     }
   }
 }
 ```
 
-> Use an absolute path to `.env`. On Windows use forward slashes or escaped backslashes: `C:/Users/you/elt-mcp-test/.env`.
+> Use an absolute path to `.env`. On Windows use forward slashes or escaped backslashes: `C:/Users/you/teradata-etl-mcp-test/.env`.
 
 ### Example: Create an Airbyte Pipeline
 
@@ -909,8 +558,8 @@ that selects the operation. This keeps the MCP tool list concise while preservin
 
 ```bash
 # Clone and install with dev dependencies
-git clone <repository-url>
-cd devtools-elt-mcp-server
+git clone https://github.com/Teradata/teradata-etl-mcp-server.git
+cd teradata-etl-mcp-server
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # Linux/macOS
@@ -1065,7 +714,7 @@ pre-commit run bandit
 ## Project Structure
 
 ```
-devtools-elt-mcp-server/
+teradata-etl-mcp-server/
 |-- src/
 |   |-- elt_mcp_server/
 |       |-- __init__.py
@@ -1131,37 +780,6 @@ devtools-elt-mcp-server/
 
 ---
 
-## Plugin System
-
-### Creating a Custom Plugin
-
-```python
-from elt_mcp_server.plugins import Plugin, plugin
-
-@plugin(
-    name="custom_validation",
-    version="1.0.0",
-    author="Your Name",
-    plugin_type="validator"
-)
-class CustomValidationPlugin(Plugin):
-    async def initialize(self, orchestrator):
-        self.orchestrator = orchestrator
-
-    async def validate_data(self, table: str, rules: dict) -> dict:
-        # Your validation logic here
-        return {"valid": True, "issues": []}
-
-    async def shutdown(self):
-        pass
-```
-
-### Plugin Discovery
-
-Plugins are auto-discovered from the `plugins/` directory. Hot reload support is planned for a future release.
-
----
-
 ## Troubleshooting
 
 ### Common Issues
@@ -1204,6 +822,27 @@ The Airbyte Public API v1 wraps list responses in `{"data": [...]}`. The client 
 - [ ] Kubernetes operator
 - [ ] Enhanced plugin marketplace
 - [ ] GitHub Actions CI/CD pipeline
+
+---
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+- Development setup
+- Code style and standards
+- Testing requirements
+- Publishing updates
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [README.md](README.md) | Getting started and general usage (this file) |
+| [SSH-SETUP.md](SSH-SETUP.md) | Bidirectional SSH configuration for Airflow integration |
+| [DESIGN.md](DESIGN.md) | High-level architecture and system design |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development guidelines and workflow |
 
 ---
 

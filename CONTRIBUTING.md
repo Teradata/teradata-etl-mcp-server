@@ -1,4 +1,4 @@
-# Contributing to devtools-elt-mcp-server
+# Contributing to teradata-etl-mcp-server
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@
 ## Setup
 
 ```bash
-git clone https://github.com/Teradata-PE/devtools-elt-mcp-server.git
+git clone https://github.com/Teradata/teradata-etl-mcp-server.git
 cd devtools-elt-mcp-server
 python -m venv .venv
 # Windows: .venv\Scripts\activate
@@ -25,15 +25,6 @@ pip install -e ".[dev,all]"
 3. Run linters: `ruff check src tests && ruff format --check src tests`
 4. Type check: `mypy src`
 5. Security scan: `bandit -c pyproject.toml -r src`
-
-### Testing with the VS Code Extension
-
-If you need to test your server changes with the extension:
-
-1. Clone the extension repo: `git clone https://github.com/Teradata-PE/devtools-elt-mcp-vscode-extension.git`
-2. In VS Code, set `eltMcpServer.devSourcePath` to the path of this server repo
-3. Press F5 in the extension repo to launch the Extension Development Host
-4. The extension will install your local server via `pip install -e <path>`
 
 ### Publishing
 

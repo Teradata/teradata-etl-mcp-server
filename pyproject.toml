@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "elt-mcp-server"
-version = "1.0.0.dev108"
+name = "teradata-etl-mcp-server"
+version = "1.0.0.dev0"
 description = "Unified MCP server for ELT operations with Teradata, Airbyte, Airflow, and dbt"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
@@ -93,10 +93,10 @@ dev = [
 elt-mcp-server = "elt_mcp_server.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/Teradata-PE/devtools-elt-mcp-server"
-Documentation = "https://github.com/Teradata-PE/devtools-elt-mcp-server#readme"
-Repository = "https://github.com/Teradata-PE/devtools-elt-mcp-server"
-Issues = "https://github.com/Teradata-PE/devtools-elt-mcp-server/issues"
+Homepage = "https://github.com/Teradata/teradata-etl-mcp-server"
+Documentation = "https://github.com/Teradata/teradata-etl-mcp-server#readme"
+Repository = "https://github.com/Teradata/teradata-etl-mcp-server"
+Issues = "https://github.com/Teradata/teradata-etl-mcp-server/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
