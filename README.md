@@ -2,9 +2,6 @@
 
 A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operations, integrating Teradata, Airbyte, Apache Airflow, and dbt for end-to-end data pipeline management.
 
-> **📦 Install as VS Code Extension:**  
-> Search for **"Teradata ETL MCP"** in the VS Code Marketplace. The extension automates Python setup and provides a guided configuration wizard. [Marketplace Link](https://marketplace.visualstudio.com/items?itemName=Teradata.etl-mcp-server)
-
 ## Table of Contents
 
 - [Quick Start](#quick-start)
@@ -19,7 +16,6 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 - [Development](#development)
 - [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Documentation](#documentation)
 - [License](#license)
@@ -812,19 +808,6 @@ The Airbyte Public API v1 wraps list responses in `{"data": [...]}`. The client 
 
 ---
 
-## Roadmap
-
-- [ ] PostgreSQL/MySQL direct source support
-- [ ] Snowflake integration
-- [ ] Real-time streaming pipelines
-- [ ] Advanced ML-based anomaly detection
-- [ ] Web UI for pipeline management
-- [ ] Kubernetes operator
-- [ ] Enhanced plugin marketplace
-- [ ] GitHub Actions CI/CD pipeline
-
----
-
 ## Contributing
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
@@ -849,13 +832,3 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines 
 ## License
 
 This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
-
----
-
-## Acknowledgments
-
-- [FastMCP](https://github.com/jlowin/fastmcp) -- MCP server framework
-- [Teradata](https://www.teradata.com/) -- Data warehouse platform
-- [Apache Airflow](https://airflow.apache.org/) -- Workflow orchestration
-- [Airbyte](https://airbyte.com/) -- Data integration platform
-- [dbt](https://www.getdbt.com/) -- Data transformation tool

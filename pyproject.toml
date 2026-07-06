@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "teradata-etl-mcp-server"
-version = "1.0.0.dev0"
+version = "1.0.0"
 description = "Unified MCP server for ELT operations with Teradata, Airbyte, Airflow, and dbt"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
