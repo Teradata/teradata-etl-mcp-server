@@ -1,0 +1,63 @@
+# CI — Lint, type-check, and test the ELT MCP Server Python package.
+#
+# Runs on every push and pull request to develop and main branches.
+# Uses self-hosted ARC runners per Teradata-PE org policy.
+
+name: "[ci] Lint & Test"
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    runs-on:
+      group: arc-ubuntu-sc-runners-prd-03
+      labels: arc-ubuntu
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Create venv and install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -e ".[dev,all]"
+
+      - name: Ruff lint
+        run: |
+          source .venv/bin/activate
+          ruff check src tests
+
+      - name: Ruff format check
+        run: |
+          source .venv/bin/activate
+          ruff format --check src tests
+
+      - name: Mypy type check
+        run: |
+          source .venv/bin/activate
+          mypy src
+
+      - name: Bandit security scan
+        run: |
+          source .venv/bin/activate
+          bandit -c pyproject.toml -r src
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          pytest --tb=short -q

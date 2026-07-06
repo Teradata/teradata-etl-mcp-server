@@ -1,0 +1,68 @@
+# connections.yaml — Connection profiles for the ELT MCP Server
+#
+# Profiles represent named connection credentials for data systems (Teradata, Postgres,
+# Snowflake, etc.). Each profile is independent: credentials come from connections.yaml
+# or environment variables, never from wizard settings.
+#
+# SSH back-channel (Airflow → MCP client machine) is NOT stored here — use
+# MCP_CLIENT_SSH_* settings in .env instead.
+#
+# The LLM references profiles by name; the server resolves actual credentials at runtime.
+# Credentials never reach the LLM — only profile names do.
+#
+# Set the path to this file via the VS Code Setup Wizard
+# (ELT MCP Server → Setup Wizard → "connections.yaml").
+# After saving, click "Reload Configuration" so the server picks it up.
+#
+# Use ${ENV_VAR_NAME} to reference values from .env or your environment for secrets.
+
+version: "1"
+
+profiles:
+
+  # -------------------------------------------------------------------
+  # Target Teradata production instance
+  # Used by: Airbyte destination, TdLoad, BTEQ, metadata discovery
+  # -------------------------------------------------------------------
+  teradata_prod:
+    host: "td-prod.example.com"
+    port: 1025
+    username: "etl_prod_user"
+    password: "${TD_PROD_PASSWORD}"
+    default_schema: "prod_db"
+    description: "Target Teradata production instance"
+
+  # -------------------------------------------------------------------
+  # Airbyte source example — Postgres
+  # Used by: Airbyte source connector
+  # -------------------------------------------------------------------
+  postgres_prod:
+    host: "pg-host.example.com"
+    port: 5432
+    database: "mydb"
+    username: "etl_user"
+    password: "${POSTGRES_PASSWORD}"
+    schemas:
+      - "public"
+    description: "Source Postgres database"
+
+  # -------------------------------------------------------------------
+  # Teradata source (for Teradata-to-Teradata transfers only)
+  # Used by: TdLoad source when moving data between two Teradata systems
+  # -------------------------------------------------------------------
+  td_source:
+    host: "td-staging.example.com"
+    port: 1025
+    username: "etl_reader"
+    password: "${TD_SOURCE_PASSWORD}"
+    database: "staging_db"
+    description: "Source Teradata for table transfers"
+
+# -------------------------------------------------------------------
+# Aliases — shorthand names that map to profiles above
+# The LLM uses these short names in tool calls
+# -------------------------------------------------------------------
+aliases:
+  teradata: "teradata_prod"
+  source: "postgres_prod"
+  target: "teradata_prod"

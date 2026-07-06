@@ -1,0 +1,113 @@
+# Pre-commit hooks for ELT MCP Server
+# Runs on every commit to catch issues before they reach the remote.
+#
+# Setup:
+#   pip install pre-commit
+#   pre-commit install            # hooks on git commit
+#   pre-commit install --hook-type pre-push   # hooks on git push
+#
+# Manual run:
+#   pre-commit run --all-files
+
+repos:
+  # ── Ruff (official repo — manages its own environment) ───────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.0
+    hooks:
+      - id: ruff
+        name: ruff lint
+        args: [--fix, --exit-non-zero-on-fix]
+
+      - id: ruff-format
+        name: ruff format
+
+  # ── Bandit (official repo — manages its own environment) ─────────
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.3
+    hooks:
+      - id: bandit
+        name: bandit security scan
+        args: [-c, pyproject.toml]
+        additional_dependencies: ["bandit[toml]"]
+        files: ^src/
+
+  # ── Local hooks (language: system — use stdlib only, no network) ─
+  #
+  # File I/O uses pathlib.Path.read_text() which auto-closes handles,
+  # preventing file descriptor exhaustion on large commits.
+  - repo: local
+    hooks:
+      # ── Python compile check ────────────────────────────────────
+      - id: check-ast
+        name: check python syntax
+        entry: python -m py_compile
+        language: system
+        types: [python]
+
+      # ── Detect secrets & credentials ────────────────────────────
+      - id: no-private-keys
+        name: no private keys
+        entry: python -c "import sys,re,pathlib;pat=re.compile(r'-----BEGIN (RSA |DSA |EC |OPENSSH )?PRIVATE KEY');hits=[f'{f}:{i+1}' for f in sys.argv[1:] for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if pat.search(l)];sys.exit('Private key found in:\n'+chr(10).join(hits)) if hits else None"
+        language: system
+        types: [text]
+
+      # ── No .env files committed (.env.example and .env.template are OK)
+      - id: no-env-files
+        name: no .env files
+        entry: python -c "import sys,os;safe={'.env.example','.env.template'};files=[f for f in sys.argv[1:] if os.path.basename(f).startswith('.env') and os.path.basename(f) not in safe];sys.exit('Blocked secret files:\n'+chr(10).join(files)) if files else None"
+        language: system
+        types: [text]
+
+      # ── No hardcoded passwords/tokens ───────────────────────────
+      - id: no-hardcoded-secrets
+        name: no hardcoded secrets
+        entry: python -c "import sys,re,pathlib;p=re.compile(r'(password|secret|token|api_key|apikey)\s*[=:]\s*[\x27\x22][^\x27\x22]{8,}',re.I);[sys.exit(f'Possible secret in {f}:{i+1}') for f in sys.argv[1:] if 'test' not in f.lower() for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if p.search(l)]"
+        language: system
+        types: [python]
+        files: ^src/
+
+      # ── No raw file I/O or variable path joins in generators ────
+      # Generators must use SafeFileWriter / safe_join_within. This hook blocks:
+      #   - self.project_dir  / <var>   (variable right-hand side)
+      #   - self.output_dir   / <var>
+      #   - self.dags_folder  / <var>
+      #   - raw open(...) calls
+      # String-literal joins (e.g. self.project_dir / "models") are allowed.
+      - id: no-unsafe-generator-paths
+        name: no raw file I/O in generators
+        entry: python -c "import sys,re,pathlib;pat=re.compile(r'self\.(project_dir|output_dir|dags_folder)\s*/\s*(?![\x22\x27])[^\s)]+|(?<![a-zA-Z0-9_.])open\s*\(');hits=[f'{f}:{i+1}: {l.strip()}' for f in sys.argv[1:] for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if pat.search(l)];sys.exit('Generators must use SafeFileWriter / safe_join_within, not raw path joins or open():\n'+chr(10).join(hits)) if hits else None"
+        language: system
+        files: ^src/elt_mcp_server/generators/.*\.py$
+        types: [python]
+
+      # ── File hygiene ────────────────────────────────────────────
+      - id: trailing-whitespace
+        name: trailing whitespace
+        entry: python -c "import sys,pathlib;errs=[f'{f}:{i+1}' for f in sys.argv[1:] for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if l!=l.rstrip()];sys.exit('Trailing whitespace in:\n'+chr(10).join(errs)) if errs else None"
+        language: system
+        types: [text]
+        exclude: \.(md|patch)$
+
+      - id: check-yaml
+        name: check yaml syntax
+        entry: python -c "import yaml,sys,pathlib;[yaml.safe_load(pathlib.Path(f).read_text(encoding='utf-8')) for f in sys.argv[1:]]"
+        language: system
+        types: [yaml]
+
+      - id: check-toml
+        name: check toml syntax
+        entry: python -c "import sys,pathlib;exec('try:\n import tomllib\nexcept ImportError:\n import tomli as tomllib');[tomllib.loads(pathlib.Path(f).read_text(encoding='utf-8')) for f in sys.argv[1:]]"
+        language: system
+        types: [toml]
+
+      - id: check-merge-conflict
+        name: check merge conflict markers
+        entry: python -c "import sys,re,pathlib;[sys.exit(f'Merge conflict in {f}:{i+1}') for f in sys.argv[1:] for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if re.match(r'^(<{7}|>{7}|={7})\s',l)]"
+        language: system
+        types: [text]
+
+      - id: no-large-files
+        name: no large files (>500KB)
+        entry: python -c "import sys,os;[sys.exit(f'{f} is {os.path.getsize(f)//1024}KB (>500KB)') for f in sys.argv[1:] if os.path.getsize(f)>512000]"
+        language: system
+        types: [file]

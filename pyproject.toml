@@ -1,0 +1,239 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elt-mcp-server"
+version = "1.0.0.dev108"
+description = "Unified MCP server for ELT operations with Teradata, Airbyte, Airflow, and dbt"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Teradata", email = "SD230150@Teradata.com"}
+]
+keywords = ["mcp", "elt", "etl", "teradata", "airbyte", "airflow", "dbt", "data-pipeline"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Database",
+]
+
+dependencies = [
+    "fastmcp>=3.2.0,<4",
+    # Transitive security floor: starlette<1.3.1 is vulnerable to CVE-2026-48710
+    # ("BadHost" Host-header auth bypass). Pulled in via fastmcp->mcp / sse-starlette,
+    # which only require starlette>=0.49.1, so pin the fixed floor explicitly.
+    "starlette>=1.3.1",
+    "teradatasql>=17.20.0.0",
+    "pandas>=2.0.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.2.2",
+    "jinja2>=3.1.0",
+    "httpx>=0.25.0,<1.0",
+    "pydantic>=2.0.0,<3.0",
+    "pydantic-settings>=2.1.0",
+]
+
+[project.optional-dependencies]
+dbt = [
+    "dbt-core>=1.7.0,<2.0",
+    "dbt-teradata>=0.19.0",
+]
+ssh = [
+    "paramiko>=3.4.0",
+]
+full = [
+    "dbt-core>=1.7.0,<2.0",
+    "dbt-teradata>=0.19.0",
+    "paramiko>=3.4.0",
+]
+lineage = [
+    "graphviz>=0.20.0",
+]
+ml = [
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+]
+monitoring = [
+    "psutil>=5.9.0",
+]
+all = [
+    "dbt-core>=1.7.0,<2.0",
+    "dbt-teradata>=0.19.0",
+    "paramiko>=3.4.0",
+    "graphviz>=0.20.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "psutil>=5.9.0",
+]
+dev = [
+    "fakeredis>=2.20.0,<2.35",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "types-PyYAML>=6.0.0",
+    "types-aiofiles>=23.0.0",
+    "pre-commit>=3.5.0",
+    "bandit[toml]>=1.7.0",
+    "pip-audit>=2.7.0",
+    "tomli>=2.0.0;python_version<'3.11'",
+]
+
+[project.scripts]
+elt-mcp-server = "elt_mcp_server.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/Teradata-PE/devtools-elt-mcp-server"
+Documentation = "https://github.com/Teradata-PE/devtools-elt-mcp-server#readme"
+Repository = "https://github.com/Teradata-PE/devtools-elt-mcp-server"
+Issues = "https://github.com/Teradata-PE/devtools-elt-mcp-server/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["elt_mcp_server*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+elt_mcp_server = [
+    "templates/*.jinja2",
+    "templates/*.sql",
+    "config/*.yaml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=elt_mcp_server",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "ARG",  # flake8-unused-arguments
+    "SIM",  # flake8-simplify
+    "S",    # flake8-bandit (security)
+    "T10",  # flake8-debugger (no breakpoint/pdb in production code)
+    "T20",  # flake8-print (no print() in production code)
+]
+ignore = [
+    "E501",  # line too long, handled by formatter
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "S603",  # subprocess call with shell=False (too noisy for legitimate use)
+    "S607",  # start process with partial path (too noisy)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = ["ARG", "SIM", "S", "T20"]  # tests can use assert, print, etc.
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "teradatasql.*",
+    "graphviz.*",
+    "sklearn.*",
+    "fastmcp.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__main__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# ── Bandit security scanner ──────────────────────────────────────
+[tool.bandit]
+targets = ["src"]
+exclude_dirs = ["tests", ".venv"]
+# Severity: LOW, MEDIUM, HIGH — only block on MEDIUM+
+severity = "MEDIUM"
+confidence = "MEDIUM"
+skips = [
+    "B101",  # assert_used — legitimate in non-test code for invariant checks
+    "B404",  # import_subprocess — needed for legitimate process management
+    "B603",  # subprocess_without_shell_equals_true — too noisy
+    "B608",  # hardcoded_sql_expressions — BTEQ/validation SQL built from internal config, not user input
+]
