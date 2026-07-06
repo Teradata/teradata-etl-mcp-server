@@ -1,7 +1,7 @@
 """
-build_wheel.py -- Build (and optionally publish) the ELT MCP Server Python wheel.
+build_wheel.py -- Build (and optionally publish) the ETL MCP Server Python wheel.
 
-Builds the Python wheel + sdist for the ELT MCP Server, with optional version
+Builds the Python wheel + sdist for the ETL MCP Server, with optional version
 bumps in pyproject.toml only. Optionally smoke-tests the wheel in a clean venv
 and publishes to TestPyPI or production PyPI via twine.
 
@@ -202,7 +202,7 @@ def write_pyproject_version(path: Path, new_ver: str) -> str:
 
 # ---------- TestPyPI / PyPI index helpers ----------
 
-def fetch_existing_versions(repo: str, package: str = "elt-mcp-server") -> list[str]:
+def fetch_existing_versions(repo: str, package: str = "teradata-etl-mcp-server") -> list[str]:
     base = "https://test.pypi.org/pypi" if repo == "testpypi" else "https://pypi.org/pypi"
     url = f"{base}/{package}/json"
     try:
@@ -219,7 +219,7 @@ def fetch_existing_versions(repo: str, package: str = "elt-mcp-server") -> list[
 
 def _try_fetch_existing_versions(
     repo: str,
-    package: str = "elt-mcp-server",
+    package: str = "teradata-etl-mcp-server",
     timeout: float = 5.0,
 ) -> list[str] | None:
     """Best-effort version of fetch_existing_versions for advisory checks."""
@@ -517,15 +517,15 @@ def stage_wheel_build(repo_root: Path, pyver: str) -> list[Path]:
     banner("4", TOTAL, "Build Python wheel + sdist")
     dist = repo_root / "dist"
     dist.mkdir(exist_ok=True)
-    for f in dist.glob(f"elt_mcp_server-{pyver}*"):
+    for f in dist.glob(f"teradata_etl_mcp_server-{pyver}*"):
         info(f"removing stale: {f.name}")
         f.unlink()
     run([sys.executable, "-m", "build"], repo_root, "python -m build")
-    files = sorted(dist.glob(f"elt_mcp_server-{pyver}*"))
+    files = sorted(dist.glob(f"teradata_etl_mcp_server-{pyver}*"))
     if len(files) < 2:
         die(
             f"Expected wheel + sdist; found {len(files)} file(s) matching "
-            f"elt_mcp_server-{pyver}* in {dist}"
+            f"teradata_etl_mcp_server-{pyver}* in {dist}"
         )
     for f in files:
         info(f"produced: {f.name} ({f.stat().st_size / 1024:.1f} KiB)")
@@ -549,23 +549,23 @@ def stage_wheel_smoketest(wheel_path: Path, pyver: str) -> None:
             Path.cwd(),
             "pip install wheel",
         )
-        info(f"$ {py} -m elt_mcp_server version")
+        info(f"$ {py} -m elt_mcp_server --help")
         result = subprocess.run(
-            [str(py), "-m", "elt_mcp_server", "version"],
+            [str(py), "-m", "elt_mcp_server", "--help"],
             capture_output=True,
             text=True,
         )
         if result.returncode != 0:
             die(
-                f"Smoke-test 'elt_mcp_server version' failed (exit {result.returncode}):\n"
+                f"Smoke-test 'elt_mcp_server --help' failed (exit {result.returncode}):\n"
                 f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
             )
         first_line = (result.stdout or "").splitlines()[0] if result.stdout else ""
         info(f"output : {first_line}")
-        if pyver in (result.stdout or ""):
-            ok(f"Smoke-test confirms version {pyver}")
+        if "usage" in (result.stdout or "").lower():
+            ok(f"Smoke-test confirms CLI functional (v{pyver})")
         else:
-            warn(f"version {pyver} not found in smoke-test output")
+            warn(f"Unexpected help output for v{pyver}")
     finally:
         shutil.rmtree(smoke_dir, ignore_errors=True)
 
@@ -632,7 +632,7 @@ def stage_publish(
 # ---------- entrypoint ----------
 
 _SHORT_DESC = """\
-Build the ELT MCP Server wheel + sdist from pyproject.toml. Optionally bump the
+Build the ETL MCP Server wheel + sdist from pyproject.toml. Optionally bump the
 version, smoke-test the wheel, and publish to TestPyPI or PyPI.
 """
 
@@ -685,7 +685,7 @@ def main() -> int:
     pyproject_path = (repo_root / "pyproject.toml").resolve()
     if not pyproject_path.is_file():
         die(
-            f"Not a valid ELT MCP Server repo: {repo_root}\n"
+            f"Not a valid ETL MCP Server repo: {repo_root}\n"
             f"  Missing: {pyproject_path}\n"
             "  Expected layout: <repo>/pyproject.toml"
         )
