@@ -16,16 +16,16 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import (
+from teradata_etl_mcp_server.clients.async_airflow_client import (
     AsyncAirflowAPIError,
     AsyncAirflowClient,
 )
-from elt_mcp_server.workflow.airflow_orchestrator import (
+from teradata_etl_mcp_server.workflow.airflow_orchestrator import (
     AirflowOrchestrator,
     _map_airflow_state,
     _parse_airflow_datetime,
 )
-from elt_mcp_server.workflow.protocol import (
+from teradata_etl_mcp_server.workflow.protocol import (
     CircuitBreakerOpenError,
     WorkflowNotFoundError,
     WorkflowState,

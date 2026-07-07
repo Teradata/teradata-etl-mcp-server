@@ -12,8 +12,8 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
 
-from elt_mcp_server.auth import TeradataAuth
-from elt_mcp_server.clients.teradata_client import (
+from teradata_etl_mcp_server.auth import TeradataAuth
+from teradata_etl_mcp_server.clients.teradata_client import (
     TeradataClient,
     TeradataConnectionError,
     TeradataQueryError,
@@ -49,8 +49,8 @@ class TestTeradataClient:
     def client(self):
         """Create a TeradataClient with mocked dependency checks."""
         with (
-            patch("elt_mcp_server.clients.teradata_client._check_teradatasql"),
-            patch("elt_mcp_server.clients.teradata_client._check_pandas"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_teradatasql"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_pandas"),
         ):
             return TeradataClient(auth=TeradataAuth(
                 host="test-host.teradata.com",
@@ -75,8 +75,8 @@ class TestTeradataClient:
     def test_init_default_values(self):
         """__init__ uses correct defaults for optional params."""
         with (
-            patch("elt_mcp_server.clients.teradata_client._check_teradatasql"),
-            patch("elt_mcp_server.clients.teradata_client._check_pandas"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_teradatasql"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_pandas"),
         ):
             c = TeradataClient(auth=TeradataAuth(
                 host="h", port=1025, database="",
@@ -89,7 +89,7 @@ class TestTeradataClient:
 
     # ---- _get_connection tests ----
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_connection_success(self, mock_tdsql, client, mock_conn):
         """_get_connection calls teradatasql.connect with correct params."""
         mock_tdsql.connect.return_value = mock_conn
@@ -109,7 +109,7 @@ class TestTeradataClient:
             password="test_password",
         )
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_connection_failure_raises_connection_error(self, mock_tdsql, client):
         """_get_connection wraps exceptions in TeradataConnectionError."""
         mock_tdsql.connect.side_effect = Exception("Network unreachable")
@@ -119,8 +119,8 @@ class TestTeradataClient:
 
     # ---- test_connection ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_test_connection_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """test_connection returns success dict with version and time."""
         mock_tdsql.connect.return_value = mock_conn
@@ -138,7 +138,7 @@ class TestTeradataClient:
         assert client._connected is True
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_test_connection_failure(self, mock_tdsql, client):
         """test_connection returns error dict on failure."""
         mock_tdsql.connect.side_effect = Exception("Connection refused")
@@ -150,8 +150,8 @@ class TestTeradataClient:
 
     # ---- list_databases ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_list_databases_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """list_databases returns list of stripped database names."""
         mock_tdsql.connect.return_value = mock_conn
@@ -164,8 +164,8 @@ class TestTeradataClient:
         assert result == ["db_one", "db_two", "db_three"]
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_list_databases_empty(self, mock_tdsql, mock_pd, client, mock_conn):
         """list_databases returns empty list when no databases accessible."""
         mock_tdsql.connect.return_value = mock_conn
@@ -175,8 +175,8 @@ class TestTeradataClient:
 
         assert result == []
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_list_databases_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """list_databases raises TeradataQueryError on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -187,8 +187,8 @@ class TestTeradataClient:
 
     # ---- check_database_exists ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_check_database_exists_found(self, mock_tdsql, mock_pd, client, mock_conn):
         """check_database_exists returns True when database is found."""
         mock_tdsql.connect.return_value = mock_conn
@@ -199,8 +199,8 @@ class TestTeradataClient:
         assert result is True
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_check_database_exists_not_found(self, mock_tdsql, mock_pd, client, mock_conn):
         """check_database_exists returns False when database count is 0."""
         mock_tdsql.connect.return_value = mock_conn
@@ -211,7 +211,7 @@ class TestTeradataClient:
         assert result is False
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_check_database_exists_error_raises(self, mock_tdsql, client):
         """check_database_exists raises TeradataQueryError when a query error occurs."""
         mock_tdsql.connect.side_effect = Exception("Network error")
@@ -221,8 +221,8 @@ class TestTeradataClient:
 
     # ---- list_tables ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_list_tables_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """list_tables returns list of table dicts."""
         mock_tdsql.connect.return_value = mock_conn
@@ -247,8 +247,8 @@ class TestTeradataClient:
         assert result[2]["created_at"] is None
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_list_tables_with_type_filter(self, mock_tdsql, mock_pd, client, mock_conn):
         """list_tables passes table_type filter to query."""
         mock_tdsql.connect.return_value = mock_conn
@@ -266,8 +266,8 @@ class TestTeradataClient:
         call_args = mock_pd.read_sql.call_args
         assert call_args[1]["params"] == ("test_db", "V")
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_list_tables_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """list_tables raises TeradataQueryError on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -278,8 +278,8 @@ class TestTeradataClient:
 
     # ---- execute_query ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_execute_query_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """execute_query returns list of row dicts."""
         mock_tdsql.connect.return_value = mock_conn
@@ -295,8 +295,8 @@ class TestTeradataClient:
         assert result[1] == {"id": 2, "name": "Bob"}
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_execute_query_with_params(self, mock_tdsql, mock_pd, client, mock_conn):
         """execute_query converts dict params to tuple."""
         mock_tdsql.connect.return_value = mock_conn
@@ -314,8 +314,8 @@ class TestTeradataClient:
         call_args = mock_pd.read_sql.call_args
         assert call_args[1]["params"] == (42,)
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_execute_query_empty_result(self, mock_tdsql, mock_pd, client, mock_conn):
         """execute_query returns empty list for no rows."""
         mock_tdsql.connect.return_value = mock_conn
@@ -325,8 +325,8 @@ class TestTeradataClient:
 
         assert result == []
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_execute_query_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """execute_query raises TeradataQueryError on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -335,8 +335,8 @@ class TestTeradataClient:
         with pytest.raises(TeradataQueryError, match="Query failed"):
             client.execute_query("INVALID SQL")
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_execute_query_serializes_special_types(self, mock_tdsql, mock_pd, client, mock_conn):
         """execute_query serializes datetime, Decimal, bytes to JSON-safe types."""
         mock_tdsql.connect.return_value = mock_conn
@@ -354,8 +354,8 @@ class TestTeradataClient:
 
     # ---- get_table_metadata ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_table_metadata_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_table_metadata returns full metadata dict."""
         mock_tdsql.connect.return_value = mock_conn
@@ -415,8 +415,8 @@ class TestTeradataClient:
         assert result["creator"] == "DBA"
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_table_metadata_not_found(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_table_metadata raises when table not found (empty columns)."""
         mock_tdsql.connect.return_value = mock_conn
@@ -433,8 +433,8 @@ class TestTeradataClient:
         with pytest.raises(TeradataQueryError, match="not found or no access"):
             client.get_table_metadata("test_db", "nonexistent")
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_table_metadata_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_table_metadata wraps errors in TeradataQueryError."""
         mock_tdsql.connect.return_value = mock_conn
@@ -445,8 +445,8 @@ class TestTeradataClient:
 
     # ---- profile_table ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_numeric_column(self, mock_tdsql, mock_pd, client, mock_conn):
         """profile_table returns min/max/avg/std_dev for numeric columns."""
         mock_tdsql.connect.return_value = mock_conn
@@ -480,8 +480,8 @@ class TestTeradataClient:
         assert profile["distinct_count"] == 500
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_string_column(self, mock_tdsql, mock_pd, client, mock_conn):
         """profile_table returns length stats for string columns."""
         mock_tdsql.connect.return_value = mock_conn
@@ -501,8 +501,8 @@ class TestTeradataClient:
         assert profile["max_length"] == 50
         assert profile["avg_length"] == pytest.approx(15.5)
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_date_column(self, mock_tdsql, mock_pd, client, mock_conn):
         """profile_table returns min/max for date columns."""
         mock_tdsql.connect.return_value = mock_conn
@@ -521,8 +521,8 @@ class TestTeradataClient:
         assert profile["min"] == "2020-01-01"
         assert profile["max"] == "2025-12-31"
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_with_sample_size(self, mock_tdsql, mock_pd, client, mock_conn):
         """profile_table passes sample_size into the query."""
         mock_tdsql.connect.return_value = mock_conn
@@ -542,8 +542,8 @@ class TestTeradataClient:
         stats_query = mock_pd.read_sql.call_args_list[1][0][0]
         assert "SAMPLE 1000" in stats_query
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """profile_table raises TeradataQueryError on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -554,8 +554,8 @@ class TestTeradataClient:
 
     # ---- preview_data ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_preview_data_top(self, mock_tdsql, mock_pd, client, mock_conn):
         """preview_data uses TOP N by default."""
         mock_tdsql.connect.return_value = mock_conn
@@ -572,8 +572,8 @@ class TestTeradataClient:
         assert "TOP 2" in query
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_preview_data_sample(self, mock_tdsql, mock_pd, client, mock_conn):
         """preview_data uses SAMPLE when sample=True."""
         mock_tdsql.connect.return_value = mock_conn
@@ -587,8 +587,8 @@ class TestTeradataClient:
         query = mock_pd.read_sql.call_args[0][0]
         assert "SAMPLE 10" in query
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_preview_data_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """preview_data raises TeradataQueryError on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -599,8 +599,8 @@ class TestTeradataClient:
 
     # ---- get_column_statistics ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_column_statistics_all_columns(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_column_statistics returns stats for all columns by default."""
         mock_tdsql.connect.return_value = mock_conn
@@ -640,8 +640,8 @@ class TestTeradataClient:
         assert result[1]["null_percentage"] == pytest.approx(5.0)
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_column_statistics_single_column(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_column_statistics with column_name only analyzes that column."""
         mock_tdsql.connect.return_value = mock_conn
@@ -662,8 +662,8 @@ class TestTeradataClient:
         # No column list query should have been made
         assert mock_pd.read_sql.call_count == 1
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_column_statistics_with_sample(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_column_statistics includes SAMPLE clause when sample_size given."""
         mock_tdsql.connect.return_value = mock_conn
@@ -682,8 +682,8 @@ class TestTeradataClient:
         stats_query = mock_pd.read_sql.call_args_list[0][0][0]
         assert "SAMPLE 500" in stats_query
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_column_statistics_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_column_statistics raises TeradataQueryError on outer failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -694,8 +694,8 @@ class TestTeradataClient:
 
     # ---- estimate_table_size ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_estimate_table_size_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """estimate_table_size returns size and row count."""
         mock_tdsql.connect.return_value = mock_conn
@@ -716,8 +716,8 @@ class TestTeradataClient:
         assert result["row_count"] == 1000000
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_estimate_table_size_returns_defaults_on_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """estimate_table_size returns zeros and error key on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -731,8 +731,8 @@ class TestTeradataClient:
 
     # ---- search_metadata ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_search_metadata_table(self, mock_tdsql, mock_pd, client, mock_conn):
         """search_metadata with search_type='table' returns table results."""
         mock_tdsql.connect.return_value = mock_conn
@@ -757,8 +757,8 @@ class TestTeradataClient:
         assert "TableKind" in sql
         assert "'T'" in sql
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_search_metadata_column(self, mock_tdsql, mock_pd, client, mock_conn):
         """search_metadata with search_type='column' returns column results."""
         mock_tdsql.connect.return_value = mock_conn
@@ -776,8 +776,8 @@ class TestTeradataClient:
         assert result[0]["type"] == "column"
         assert result[0]["column"] == "customer_id"
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_search_metadata_with_database_filter(self, mock_tdsql, mock_pd, client, mock_conn):
         """search_metadata passes database_name filter."""
         mock_tdsql.connect.return_value = mock_conn
@@ -796,8 +796,8 @@ class TestTeradataClient:
         assert "TableKind" in sql
         assert "'T'" in sql
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_search_metadata_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """search_metadata raises TeradataQueryError on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -808,8 +808,8 @@ class TestTeradataClient:
 
     # ---- get_table_lineage ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_table_lineage_no_query_log(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_table_lineage returns empty lineage when query log unavailable."""
         mock_tdsql.connect.return_value = mock_conn
@@ -822,8 +822,8 @@ class TestTeradataClient:
         assert result["upstream"] == []
         assert result["downstream"] == []
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_table_lineage_with_results(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_table_lineage returns upstream/downstream tables."""
         mock_tdsql.connect.return_value = mock_conn
@@ -853,8 +853,8 @@ class TestTeradataClient:
 
     # ---- detect_schema_changes ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_detect_schema_changes_no_change(self, mock_tdsql, mock_pd, client, mock_conn):
         """detect_schema_changes reports no changes when schemas match."""
         mock_tdsql.connect.return_value = mock_conn
@@ -883,8 +883,8 @@ class TestTeradataClient:
         assert result["columns_removed"] == []
         assert result["columns_modified"] == []
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_detect_schema_changes_column_added(self, mock_tdsql, mock_pd, client, mock_conn):
         """detect_schema_changes detects added columns."""
         baseline = {
@@ -906,8 +906,8 @@ class TestTeradataClient:
         assert result["schema_changed"] is True
         assert "email" in result["columns_added"]
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_detect_schema_changes_column_removed(self, mock_tdsql, mock_pd, client, mock_conn):
         """detect_schema_changes detects removed columns."""
         baseline = {
@@ -931,8 +931,8 @@ class TestTeradataClient:
 
     # ---- get_amp_count ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_amp_count_success(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_amp_count returns the AMP count."""
         mock_tdsql.connect.return_value = mock_conn
@@ -942,8 +942,8 @@ class TestTeradataClient:
 
         assert result == 64
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_amp_count_defaults_to_2_on_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """get_amp_count returns 2 as fallback on failure."""
         mock_tdsql.connect.return_value = mock_conn
@@ -988,8 +988,8 @@ class TestTeradataClient:
 
     # ---- connection cleanup per method ----
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_connection_closed_after_list_databases(self, mock_tdsql, mock_pd, client, mock_conn):
         """Each method creates and closes its own connection."""
         mock_tdsql.connect.return_value = mock_conn
@@ -999,8 +999,8 @@ class TestTeradataClient:
 
         mock_conn.close.assert_called_once()
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_connection_closed_after_execute_query_error(self, mock_tdsql, mock_pd, client, mock_conn):
         """Connection is closed even when query raises an error."""
         mock_tdsql.connect.return_value = mock_conn
@@ -1013,7 +1013,7 @@ class TestTeradataClient:
 
     # ---- engine (legacy) property ----
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_engine_property_returns_connection(self, mock_tdsql, client, mock_conn):
         """engine property creates a new connection (backward compat)."""
         mock_tdsql.connect.return_value = mock_conn
@@ -1151,8 +1151,8 @@ class TestSQLInjectionPrevention:
     @pytest.fixture
     def client(self):
         with (
-            patch("elt_mcp_server.clients.teradata_client._check_teradatasql"),
-            patch("elt_mcp_server.clients.teradata_client._check_pandas"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_teradatasql"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_pandas"),
         ):
             return TeradataClient(auth=TeradataAuth(
                 host="test-host",
@@ -1163,8 +1163,8 @@ class TestSQLInjectionPrevention:
                 password="test_password",
             ))
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_rejects_injection_in_database(
         self, mock_tdsql, mock_pd, client
     ):
@@ -1180,8 +1180,8 @@ class TestSQLInjectionPrevention:
                 table_name="valid_table",
             )
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_preview_data_rejects_injection_in_table(
         self, mock_tdsql, mock_pd, client
     ):
@@ -1194,8 +1194,8 @@ class TestSQLInjectionPrevention:
                 table_name="t UNION SELECT 1--",
             )
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_get_column_statistics_rejects_injection(
         self, mock_tdsql, mock_pd, client
     ):
@@ -1208,8 +1208,8 @@ class TestSQLInjectionPrevention:
                 table_name="valid_table",
             )
 
-    @patch("elt_mcp_server.clients.teradata_client.pd")
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.pd")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_profile_table_rejects_sample_size_zero(
         self, mock_tdsql, mock_pd, client
     ):
@@ -1248,15 +1248,15 @@ class TestExecuteStatements:
     @pytest.fixture
     def client(self):
         with (
-            patch("elt_mcp_server.clients.teradata_client._check_teradatasql"),
-            patch("elt_mcp_server.clients.teradata_client._check_pandas"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_teradatasql"),
+            patch("teradata_etl_mcp_server.clients.teradata_client._check_pandas"),
         ):
             return TeradataClient(auth=TeradataAuth(
                 host="testhost", port=1025, database="testdb",
                 mechanism="TD2", username="user", password="pass",
             ))
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_single_ddl_statement(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn
@@ -1272,7 +1272,7 @@ class TestExecuteStatements:
         assert len(result["results"]) == 1
         assert result["results"][0]["type"] == "ok"
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_multiple_ddl_statements(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn
@@ -1288,7 +1288,7 @@ class TestExecuteStatements:
         assert len(result["results"]) == 2
         assert mock_cursor.execute.call_count == 2
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_select_returns_structured_data(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn
@@ -1307,7 +1307,7 @@ class TestExecuteStatements:
         assert rs["rows"][0] == {"col1": "a", "col2": 1}
         assert rs["rows"][1] == {"col1": "b", "col2": 2}
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_mixed_ddl_and_select(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn
@@ -1336,7 +1336,7 @@ class TestExecuteStatements:
         assert result["results"][1]["type"] == "result_set"
         assert result["results"][1]["rows"][0] == {"cnt": 42}
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_error_list_tolerates_known_code(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn
@@ -1353,7 +1353,7 @@ class TestExecuteStatements:
         assert len(result["tolerated_errors"]) == 1
         assert result["tolerated_errors"][0]["error_code"] == 3803
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_error_list_does_not_tolerate_unknown_code(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn
@@ -1369,7 +1369,7 @@ class TestExecuteStatements:
         assert result["success"] is False
         assert result["returncode"] == 3807
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_error_without_error_list_fails(self, mock_tdsql, client):
         mock_conn = MagicMock()
         mock_tdsql.connect.return_value = mock_conn

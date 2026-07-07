@@ -19,12 +19,12 @@ pytest.skip(
 import asyncio
 from pathlib import Path
 
-from elt_mcp_server.airbyte_client import AirbyteClient
-from elt_mcp_server.conflict_resolver import ConflictResolver
-from elt_mcp_server.data_validator import DataValidator
-from elt_mcp_server.dbt_client import DbtClient
-from elt_mcp_server.schema_registry import SchemaRegistry
-from elt_mcp_server.teradata_client import TeradataClient
+from teradata_etl_mcp_server.airbyte_client import AirbyteClient
+from teradata_etl_mcp_server.conflict_resolver import ConflictResolver
+from teradata_etl_mcp_server.data_validator import DataValidator
+from teradata_etl_mcp_server.dbt_client import DbtClient
+from teradata_etl_mcp_server.schema_registry import SchemaRegistry
+from teradata_etl_mcp_server.teradata_client import TeradataClient
 
 
 @pytest.fixture(scope="module")

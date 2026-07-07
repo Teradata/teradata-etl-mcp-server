@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from elt_mcp_server.clients.dbt_client import DBTClient
-from elt_mcp_server.clients.teradata_client import TeradataClient
+from teradata_etl_mcp_server.clients.dbt_client import DBTClient
+from teradata_etl_mcp_server.clients.teradata_client import TeradataClient
 
 
 @pytest.fixture(scope="module")

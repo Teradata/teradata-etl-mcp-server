@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from elt_mcp_server.credential_resolver import ProfileSummary
-from elt_mcp_server.tools.connection_profiles import register_connection_profile_tools
+from teradata_etl_mcp_server.credential_resolver import ProfileSummary
+from teradata_etl_mcp_server.tools.connection_profiles import register_connection_profile_tools
 
 
 @pytest.fixture

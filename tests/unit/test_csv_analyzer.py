@@ -2,7 +2,7 @@
 
 import pytest
 
-from elt_mcp_server.utils.csv_analyzer import CSVAnalyzer
+from teradata_etl_mcp_server.utils.csv_analyzer import CSVAnalyzer
 
 
 @pytest.fixture

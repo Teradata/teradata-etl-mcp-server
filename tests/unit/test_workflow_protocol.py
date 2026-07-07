@@ -10,7 +10,7 @@ Tests cover:
 
 from datetime import datetime, timezone
 
-from elt_mcp_server.workflow.protocol import (
+from teradata_etl_mcp_server.workflow.protocol import (
     CircuitBreakerOpenError,
     OrchestratorHealth,
     TaskRun,

@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from elt_mcp_server.tools.metadata_discovery import register_metadata_tools
+from teradata_etl_mcp_server.tools.metadata_discovery import register_metadata_tools
 
 
 @pytest.fixture
@@ -735,7 +735,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_client = MagicMock()
             mock_client.host = "td-profile.example.com"
@@ -775,7 +775,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_client = MagicMock()
             mock_client.estimate_table_size.return_value = {"size_mb": 42.0}
@@ -858,7 +858,7 @@ class TestTeradataProfile:
         profile_orchestrator.teradata_client.estimate_table_size.return_value = {"size_mb": 10.0}
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             await tools["teradata_analyze"](
                 analysis_type="estimate_size",
@@ -883,7 +883,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_td.return_value = MagicMock(
                 estimate_table_size=MagicMock(return_value={"size_mb": 1.0})
@@ -908,7 +908,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_td.return_value = MagicMock(
                 estimate_table_size=MagicMock(return_value={"size_mb": 1.0})
@@ -933,7 +933,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_td.return_value = MagicMock(
                 estimate_table_size=MagicMock(return_value={"size_mb": 1.0})
@@ -956,7 +956,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_td.return_value = MagicMock(
                 estimate_table_size=MagicMock(return_value={"size_mb": 1.0})
@@ -983,7 +983,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_td.return_value = MagicMock(
                 estimate_table_size=MagicMock(return_value={"size_mb": 1.0})
@@ -1007,7 +1007,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_td.return_value = MagicMock(
                 estimate_table_size=MagicMock(return_value={"size_mb": 1.0})
@@ -1033,7 +1033,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_client = MagicMock()
             mock_client.estimate_table_size.return_value = {"size_mb": 5.0}
@@ -1061,7 +1061,7 @@ class TestTeradataProfile:
         }
         tools = register_metadata_tools(profile_orchestrator)
         with unittest.mock.patch(
-            "elt_mcp_server.tools.metadata_discovery.TeradataClient"
+            "teradata_etl_mcp_server.tools.metadata_discovery.TeradataClient"
         ) as mock_td:
             mock_client = MagicMock()
             mock_client.search_metadata.return_value = [

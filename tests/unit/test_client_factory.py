@@ -12,12 +12,12 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from pydantic import SecretStr
 
-from elt_mcp_server.client_factory import (
+from teradata_etl_mcp_server.client_factory import (
     ClientFactoryBase,
     DefaultClientFactory,
     LazyClientFactory,
 )
-from elt_mcp_server.config import (
+from teradata_etl_mcp_server.config import (
     AirbyteSettings,
     AirflowSettings,
     DBTSettings,
@@ -26,7 +26,7 @@ from elt_mcp_server.config import (
     Settings,
     TeradataSettings,
 )
-from elt_mcp_server.workflow import WorkflowOrchestratorProtocol
+from teradata_etl_mcp_server.workflow import WorkflowOrchestratorProtocol
 from tests.unit.mock_client_factory import MockClientFactory
 
 
@@ -70,7 +70,7 @@ class TestClientFactoryProtocol:
 
     def test_protocol_defines_create_workflow_orchestrator(self):
         """Verify protocol defines create_workflow_orchestrator method."""
-        from elt_mcp_server.client_factory import ClientFactoryProtocol
+        from teradata_etl_mcp_server.client_factory import ClientFactoryProtocol
 
         # Check method exists in protocol annotations
         assert hasattr(ClientFactoryProtocol, "create_workflow_orchestrator")

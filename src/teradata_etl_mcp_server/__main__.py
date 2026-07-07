@@ -1,7 +1,7 @@
-"""Console script entrypoint for ELT MCP Server.
+"""Console script entrypoint for Teradata ETL MCP Server.
 
 This module allows running the server via the installed
-CLI `elt-mcp-server` by exposing a `main()` function
+CLI `teradata-etl-mcp-server` by exposing a `main()` function
 that delegates to the CLI implementation in `main.py`.
 """
 

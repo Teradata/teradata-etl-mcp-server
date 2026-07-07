@@ -17,7 +17,7 @@ from unittest.mock import AsyncMock, MagicMock
 import httpx
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import (
+from teradata_etl_mcp_server.clients.async_airflow_client import (
     AsyncAirflowAPIError,
     AsyncAirflowClient,
     AsyncAirflowClientError,
@@ -1437,7 +1437,7 @@ class TestCircuitBreakerNegative:
     @pytest.mark.asyncio
     async def test_circuit_breaker_rejects_when_open(self):
         """Test requests are rejected when circuit breaker is open."""
-        from elt_mcp_server.utils.circuit_breaker import CircuitState
+        from teradata_etl_mcp_server.utils.circuit_breaker import CircuitState
 
         client = AsyncAirflowClient(
             base_url="http://localhost:8080",
@@ -1998,7 +1998,7 @@ class TestGetProviders:
 
     def test_check_missing_providers_normalizes_hyphens(self):
         """Test check_missing_providers normalizes hyphenated package names."""
-        from elt_mcp_server.clients.async_airflow_client import check_missing_providers
+        from teradata_etl_mcp_server.clients.async_airflow_client import check_missing_providers
 
         response = {
             "providers": [
@@ -2013,7 +2013,7 @@ class TestGetProviders:
 
     def test_check_missing_providers_normalizes_underscores(self):
         """Test check_missing_providers normalizes underscored package names in response."""
-        from elt_mcp_server.clients.async_airflow_client import check_missing_providers
+        from teradata_etl_mcp_server.clients.async_airflow_client import check_missing_providers
 
         response = {
             "providers": [
@@ -2028,7 +2028,7 @@ class TestGetProviders:
 
     def test_check_missing_providers_handles_null_package_name(self):
         """Test check_missing_providers handles null package_name values without crashing."""
-        from elt_mcp_server.clients.async_airflow_client import check_missing_providers
+        from teradata_etl_mcp_server.clients.async_airflow_client import check_missing_providers
 
         response = {
             "providers": [

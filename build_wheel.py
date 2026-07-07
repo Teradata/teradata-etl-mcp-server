@@ -1,7 +1,7 @@
 """
-build_wheel.py -- Build (and optionally publish) the ETL MCP Server Python wheel.
+build_wheel.py -- Build (and optionally publish) the Teradata ETL MCP Server Python wheel.
 
-Builds the Python wheel + sdist for the ETL MCP Server, with optional version
+Builds the Python wheel + sdist for the Teradata ETL MCP Server, with optional version
 bumps in pyproject.toml only. Optionally smoke-tests the wheel in a clean venv
 and publishes to TestPyPI or production PyPI via twine.
 
@@ -535,7 +535,7 @@ def stage_wheel_build(repo_root: Path, pyver: str) -> list[Path]:
 
 def stage_wheel_smoketest(wheel_path: Path, pyver: str) -> None:
     banner("5", TOTAL, "Smoke-test wheel in fresh venv")
-    smoke_dir = Path(tempfile.mkdtemp(prefix="elt-smoketest-"))
+    smoke_dir = Path(tempfile.mkdtemp(prefix="etl-smoketest-"))
     try:
         venv_dir = smoke_dir / "venv"
         run([sys.executable, "-m", "venv", str(venv_dir)], Path.cwd(), "venv create")
@@ -549,23 +549,23 @@ def stage_wheel_smoketest(wheel_path: Path, pyver: str) -> None:
             Path.cwd(),
             "pip install wheel",
         )
-        info(f"$ {py} -m elt_mcp_server --help")
+        info(f"$ {py} -m teradata_etl_mcp_server version")
         result = subprocess.run(
-            [str(py), "-m", "elt_mcp_server", "--help"],
+            [str(py), "-m", "teradata_etl_mcp_server", "version"],
             capture_output=True,
             text=True,
         )
         if result.returncode != 0:
             die(
-                f"Smoke-test 'elt_mcp_server --help' failed (exit {result.returncode}):\n"
+                f"Smoke-test 'teradata_etl_mcp_server version' failed (exit {result.returncode}):\n"
                 f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
             )
         first_line = (result.stdout or "").splitlines()[0] if result.stdout else ""
         info(f"output : {first_line}")
-        if "usage" in (result.stdout or "").lower():
-            ok(f"Smoke-test confirms CLI functional (v{pyver})")
+        if pyver in (result.stdout or ""):
+            ok(f"Smoke-test confirms version {pyver}")
         else:
-            warn(f"Unexpected help output for v{pyver}")
+            warn(f"version {pyver} not found in smoke-test output")
     finally:
         shutil.rmtree(smoke_dir, ignore_errors=True)
 
@@ -632,7 +632,7 @@ def stage_publish(
 # ---------- entrypoint ----------
 
 _SHORT_DESC = """\
-Build the ETL MCP Server wheel + sdist from pyproject.toml. Optionally bump the
+Build the Teradata ETL MCP Server wheel + sdist from pyproject.toml. Optionally bump the
 version, smoke-test the wheel, and publish to TestPyPI or PyPI.
 """
 
@@ -685,7 +685,7 @@ def main() -> int:
     pyproject_path = (repo_root / "pyproject.toml").resolve()
     if not pyproject_path.is_file():
         die(
-            f"Not a valid ETL MCP Server repo: {repo_root}\n"
+            f"Not a valid Teradata ETL MCP Server repo: {repo_root}\n"
             f"  Missing: {pyproject_path}\n"
             "  Expected layout: <repo>/pyproject.toml"
         )

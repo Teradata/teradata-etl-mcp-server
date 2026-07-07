@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from elt_mcp_server.storage.metadata_store import (
+from teradata_etl_mcp_server.storage.metadata_store import (
     ExecutionRecord,
     JSONMetadataStore,
     MetadataEntry,

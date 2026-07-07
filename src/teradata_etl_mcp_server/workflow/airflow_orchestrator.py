@@ -5,8 +5,8 @@ WorkflowOrchestratorProtocol, adapting the AsyncAirflowClient to
 the unified workflow interface.
 
 Example:
-    from elt_mcp_server.clients.async_airflow_client import AsyncAirflowClient
-    from elt_mcp_server.workflow import AirflowOrchestrator
+    from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowClient
+    from teradata_etl_mcp_server.workflow import AirflowOrchestrator
 
     client = AsyncAirflowClient(base_url="http://localhost:8080", ...)
     orchestrator = AirflowOrchestrator(client)

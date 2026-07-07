@@ -12,7 +12,7 @@ from fastmcp.tools.tool import ToolResult
 from mcp.types import CallToolRequestParams, TextContent
 from pydantic import TypeAdapter, ValidationError
 
-from elt_mcp_server.server_middleware import (
+from teradata_etl_mcp_server.server_middleware import (
     TOOL_PARAM_ALIASES,
     ParamAliasingAndEnumErrorEnrichmentMiddleware,
     _format_validation_error,
@@ -228,19 +228,19 @@ class TestAliasTableConsistency:
         """
         from unittest.mock import MagicMock
 
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             register_pipeline_tools,
         )
-        from elt_mcp_server.tools.connection_profiles import (
+        from teradata_etl_mcp_server.tools.connection_profiles import (
             register_connection_profile_tools,
         )
-        from elt_mcp_server.tools.data_movement import register_data_movement_tools
-        from elt_mcp_server.tools.dbt_management import register_dbt_tools
-        from elt_mcp_server.tools.metadata_discovery import register_metadata_tools
-        from elt_mcp_server.tools.orchestration_execution import (
+        from teradata_etl_mcp_server.tools.data_movement import register_data_movement_tools
+        from teradata_etl_mcp_server.tools.dbt_management import register_dbt_tools
+        from teradata_etl_mcp_server.tools.metadata_discovery import register_metadata_tools
+        from teradata_etl_mcp_server.tools.orchestration_execution import (
             register_orchestration_tools,
         )
-        from elt_mcp_server.tools.ttu_tools import register_ttu_tools
+        from teradata_etl_mcp_server.tools.ttu_tools import register_ttu_tools
 
         orch = MagicMock()
         # The registration functions only use the orchestrator as a

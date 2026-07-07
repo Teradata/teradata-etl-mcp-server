@@ -2,7 +2,7 @@
 
 import ssl
 
-from elt_mcp_server.utils.tls import build_tls_context
+from teradata_etl_mcp_server.utils.tls import build_tls_context
 
 
 class TestBuildTlsContext:

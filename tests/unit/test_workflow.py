@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from elt_mcp_server.workflow import (
+from teradata_etl_mcp_server.workflow import (
     AirflowOrchestrator,
     WorkflowOrchestratorProtocol,
     create_orchestrator,
@@ -84,17 +84,17 @@ class TestWorkflowPackageExports:
 
     def test_import_protocol(self):
         """Test WorkflowOrchestratorProtocol can be imported."""
-        from elt_mcp_server.workflow import WorkflowOrchestratorProtocol
+        from teradata_etl_mcp_server.workflow import WorkflowOrchestratorProtocol
         assert WorkflowOrchestratorProtocol is not None
 
     def test_import_base_class(self):
         """Test WorkflowOrchestratorBase can be imported."""
-        from elt_mcp_server.workflow import WorkflowOrchestratorBase
+        from teradata_etl_mcp_server.workflow import WorkflowOrchestratorBase
         assert WorkflowOrchestratorBase is not None
 
     def test_import_data_classes(self):
         """Test data classes can be imported."""
-        from elt_mcp_server.workflow import (
+        from teradata_etl_mcp_server.workflow import (
             OrchestratorHealth,
             TaskRun,
             WorkflowDefinition,
@@ -109,7 +109,7 @@ class TestWorkflowPackageExports:
 
     def test_import_exceptions(self):
         """Test exception classes can be imported."""
-        from elt_mcp_server.workflow import (
+        from teradata_etl_mcp_server.workflow import (
             CircuitBreakerOpenError,
             WorkflowNotFoundError,
             WorkflowOrchestratorError,
@@ -124,11 +124,11 @@ class TestWorkflowPackageExports:
 
     def test_import_orchestrators(self):
         """Test orchestrator classes can be imported."""
-        from elt_mcp_server.workflow import AirflowOrchestrator
+        from teradata_etl_mcp_server.workflow import AirflowOrchestrator
         assert AirflowOrchestrator is not None
 
     def test_import_factory_function(self):
         """Test create_orchestrator can be imported."""
-        from elt_mcp_server.workflow import create_orchestrator
+        from teradata_etl_mcp_server.workflow import create_orchestrator
         assert create_orchestrator is not None
         assert callable(create_orchestrator)

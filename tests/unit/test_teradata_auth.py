@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from elt_mcp_server.auth import AuthUnsupportedError, TeradataAuth
+from teradata_etl_mcp_server.auth import AuthUnsupportedError, TeradataAuth
 
 # ---------------------------------------------------------------------------
 # Fixture helpers

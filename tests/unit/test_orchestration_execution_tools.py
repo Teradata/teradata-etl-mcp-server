@@ -14,7 +14,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from elt_mcp_server.tools.orchestration_execution import register_orchestration_tools
+from teradata_etl_mcp_server.tools.orchestration_execution import register_orchestration_tools
 
 
 def _make_orchestrator():

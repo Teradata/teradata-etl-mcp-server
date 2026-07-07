@@ -13,8 +13,8 @@ from collections.abc import AsyncGenerator
 
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import AsyncAirflowClient
-from elt_mcp_server.workflow import (
+from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowClient
+from teradata_etl_mcp_server.workflow import (
     AirflowOrchestrator,
     OrchestratorHealth,
     TaskRun,

@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 
-from elt_mcp_server.clients.ttu_client import TTUNotInstalledError
-from elt_mcp_server.tools.ttu_tools import _detect_mload_lock, register_ttu_tools
+from teradata_etl_mcp_server.clients.ttu_client import TTUNotInstalledError
+from teradata_etl_mcp_server.tools.ttu_tools import _detect_mload_lock, register_ttu_tools
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -53,7 +53,7 @@ class TestTTUTools:
         tools = register_ttu_tools(orch)
 
         with patch(
-            "elt_mcp_server.tools.ttu_tools.TTUClient.check_installation",
+            "teradata_etl_mcp_server.tools.ttu_tools.TTUClient.check_installation",
             return_value={"tbuild_installed": True, "bteq_installed": False, "tdload_installed": True, "any_installed": True},
         ):
             result = await tools["ttu_execute"](action="check_installation")
@@ -388,11 +388,11 @@ class TestTTUTools:
         tools = register_ttu_tools(orch)
         with (
             _patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=fake_analysis,
             ),
             _patch(
-                "elt_mcp_server.clients.teradata_client.TeradataClient",
+                "teradata_etl_mcp_server.clients.teradata_client.TeradataClient",
                 _FakeTdClient,
             ),
         ):

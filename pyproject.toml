@@ -5,22 +5,25 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "teradata-etl-mcp-server"
 version = "1.0.0"
-description = "Unified MCP server for ELT operations with Teradata, Airbyte, Airflow, and dbt"
+description = "Unified MCP server for ELT operations with Teradata, TTU, Airbyte, Airflow, and dbt"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "Teradata", email = "SD230150@Teradata.com"}
 ]
-keywords = ["mcp", "elt", "etl", "teradata", "airbyte", "airflow", "dbt", "data-pipeline"]
+keywords = ["mcp", "elt", "etl", "teradata", "airbyte", "airflow", "dbt", "data-pipeline", "ttu"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Database",
 ]
@@ -90,7 +93,7 @@ dev = [
 ]
 
 [project.scripts]
-elt-mcp-server = "elt_mcp_server.__main__:main"
+teradata-etl-mcp-server = "teradata_etl_mcp_server.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/Teradata/teradata-etl-mcp-server"
@@ -100,11 +103,11 @@ Issues = "https://github.com/Teradata/teradata-etl-mcp-server/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["elt_mcp_server*"]
+include = ["teradata_etl_mcp_server*"]
 namespaces = false
 
 [tool.setuptools.package-data]
-elt_mcp_server = [
+teradata_etl_mcp_server = [
     "templates/*.jinja2",
     "templates/*.sql",
     "config/*.yaml",
@@ -120,7 +123,7 @@ asyncio_mode = "auto"
 addopts = [
     "--strict-markers",
     "--strict-config",
-    "--cov=elt_mcp_server",
+    "--cov=teradata_etl_mcp_server",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",

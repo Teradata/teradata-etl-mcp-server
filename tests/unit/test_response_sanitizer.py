@@ -2,7 +2,7 @@
 
 import json
 
-from elt_mcp_server.response_sanitizer import (
+from teradata_etl_mcp_server.response_sanitizer import (
     MASK_VALUE,
     _should_mask_key,
     _tokenize_key,

@@ -89,7 +89,7 @@ class PipelineOrchestrator:
         self._credential_resolver: CredentialResolver | None = None
         # Metadata store for caching registry and metadata. Path comes from
         # settings.mcp.metadata_db_path which is workspace-resolved by
-        # Settings.validate_settings (defaults to <workspace>/.elt-mcp/metadata.db).
+        # Settings.validate_settings (defaults to <workspace>/.etl-mcp/metadata.db).
         self._metadata_store: MetadataStore | None = SQLiteMetadataStore(
             db_path=str(self.settings.mcp.metadata_db_path)
         )

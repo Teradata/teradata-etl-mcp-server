@@ -111,14 +111,14 @@ jobs:
       - name: Verify package on TestPyPI
         run: |
           for i in 1 2 3 4 5 6; do
-            echo "Attempt $i: checking TestPyPI for elt-mcp-server $VERSION..."
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://test.pypi.org/pypi/elt-mcp-server/$VERSION/json")
+            echo "Attempt $i: checking TestPyPI for teradata-etl-mcp-server $VERSION..."
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://test.pypi.org/pypi/teradata-etl-mcp-server/$VERSION/json")
             if [ "$STATUS" = "200" ]; then
-              echo "Package elt-mcp-server==$VERSION is available on TestPyPI"
+              echo "Package teradata-etl-mcp-server==$VERSION is available on TestPyPI"
               exit 0
             fi
             echo "Not yet available (HTTP $STATUS), retrying in 10s..."
             sleep 10
           done
-          echo "ERROR: Package elt-mcp-server==$VERSION not found on TestPyPI after 60s"
+          echo "ERROR: Package teradata-etl-mcp-server==$VERSION not found on TestPyPI after 60s"
           exit 1

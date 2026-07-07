@@ -1,13 +1,13 @@
-# Teradata ETL MCP Extension
+# Teradata ETL MCP Server
 
 A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operations, integrating Teradata, Airbyte, Apache Airflow, and dbt for end-to-end data pipeline management.
+
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
 - [Features](#features)
 - [Architecture](#architecture)
-- [Installation](#installation)
 - [SSH Setup](#ssh-setup-bidirectional)
 - [Configuration](#configuration)
 - [Connection Profiles](#connection-profiles)
@@ -24,31 +24,65 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 
 ## Quick Start
 
+> **Audience**: End users who want to run the MCP server and use it with an LLM client (Copilot, Claude Desktop, Claude Code, etc.).
+
+### Prerequisites
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Python | 3.10 -- 3.13 | Required |
+| Teradata database | Any supported version | Required for Teradata operations |
+| Teradata Tools & Utilities (TTU) | 17.20+ | Required on MCP client for BTEQ/TdLoad/TPT execution |
+| OpenSSH client | Any | Required on MCP client for DAG deployment to Airflow |
+| OpenSSH server | Any | Required on MCP client if Airflow executes BTEQ/TdLoad remotely via SSH |
+| Apache Airflow | 2.x | Optional -- needed for DAG orchestration |
+| Airbyte | OSS | Optional -- needed for data replication |
+| dbt + dbt-teradata | >=1.7,<2.0 + 0.19.0+ | Optional -- needed for transformations |
+
+### Steps
+
 ```bash
-# 1. Clone and install
+# 1. Clone the repository
 git clone https://github.com/Teradata/teradata-etl-mcp-server.git
 cd teradata-etl-mcp-server
+
+# 2. Create and activate a virtual environment
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux/macOS
+source .venv/bin/activate
+
+# 3. Install the package with all extras (includes all optional dependencies)
 pip install -e ".[dev,all]"
 
-# 2. Create a workspace folder outside the source repo
-mkdir ../teradata-etl-mcp-test && cd ../teradata-etl-mcp-test
+```
+
+### Post-install Setup
+
+> Create a **separate workspace folder** for configuration files — do not place `.env` or `connections.yaml` inside the source repo (it is protected by pre-commit hooks that block `.env` commits).
+
+```bash
+# 4. Create a dedicated workspace folder outside the source repo
+mkdir ../teradata-etl-mcp-workspace
+cd ../teradata-etl-mcp-workspace
+
+# 5. Copy templates from the source repo
 cp ../teradata-etl-mcp-server/.env.example .env
 cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
 
-# 3. Edit .env — only Teradata credentials are required to start
-#    Required: TERADATA_HOST, TERADATA_USERNAME, TERADATA_PASSWORD
-
-# 4. Edit connections.yaml — update hosts/credentials for your sources
-
-# 5. Configure your MCP client (.vscode/mcp.json or claude_desktop_config.json)
-#    { "servers": { "etl-mcp": { "command": "etl-mcp-server",
-#      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"] } } }
-
-# 6. Start the server
-etl-mcp-server --env-file .env
+# 6. Edit .env with your Teradata, Airflow, Airbyte, and dbt settings
+# 7. Edit connections.yaml with your connection profiles (see Connection Profiles section)
 ```
 
-> **Minimum requirement**: Python 3.10+, a Teradata host, and an MCP client (Claude Desktop or VS Code with Copilot extension). Airflow, Airbyte, and dbt are all optional.
+### Verify Installation
+
+```bash
+# Start the server (stdio transport, default)
+python -m teradata_etl_mcp_server
+```
 
 ---
 
@@ -99,9 +133,9 @@ Response: sanitized -- LLM sees success status but NO passwords
 +---------------------------------------------------------------+
 |                   Pipeline Orchestrator                        |
 |  +-------------------+ +-------------+ +--------------------+ |
-|  | Credential        | | Intelligence| | Code Generators    | |
-|  | Resolver          | | Engine      | | (DAG, dbt, TPT,    | |
-|  | (connections.yaml)| |             | |  BTEQ, TdLoad)     | |
+|  | Credential        | | Workflow    | | Code Generators    | |
+|  | Resolver          | | Orchestrator| | (Airflow DAG,      | |
+|  | (connections.yaml)| | (Airflow)   | |  TdLoad, dbt)      | |
 |  +-------------------+ +-------------+ +--------------------+ |
 |  +-----------------+ +---------------+ +--------------------+ |
 |  | Response        | | Validators    | | Metadata Store     | |
@@ -111,10 +145,10 @@ Response: sanitized -- LLM sees success status but NO passwords
                               |
 +---------------------------------------------------------------+
 |                        Client Layer                            |
-|  +----------+ +----------+ +----------+ +----------+          |
-|  | Teradata | | Airflow  | | Airbyte  | |   dbt    |          |
-|  | Client   | | Client   | | Client   | | Client   |          |
-|  +----------+ +----------+ +----------+ +----------+          |
+|  +---------+ +---------+ +---------+ +---------+ +---------+  |
+|  | Teradata| | Airflow | | Airbyte | |   dbt   | |   TTU   |  |
+|  | Client  | | Client  | | Client  | | Client  | | Client  |  |
+|  +---------+ +---------+ +---------+ +---------+ +---------+  |
 +---------------------------------------------------------------+
                               |
 +---------------------------------------------------------------+
@@ -134,79 +168,14 @@ Response: sanitized -- LLM sees success status but NO passwords
 | **Pipeline Orchestrator** | Central coordinator; lazy-loads clients via `@property` |
 | **Credential Resolver** | Loads `connections.yaml`, resolves `${ENV_VAR}` interpolation, serves profiles by name |
 | **Response Sanitizer** | Deep-clones and masks sensitive keys (password, token, secret, etc.) in all tool responses |
-| **Intelligence Engine** | AI-driven transport method selection (Airbyte vs TPT) |
-| **Code Generators** | Jinja2-based generators for Airflow DAGs, dbt models, TPT scripts, BTEQ queries |
-| **Clients** | Abstraction layer for Teradata, Airflow, Airbyte, and dbt APIs |
-| **Metadata Store** | Optional persistence for execution history (SQLite or JSON) |
-| **Plugin Manager** | Extensibility framework for custom operators and validators |
+| **Workflow Orchestrator** | Protocol-based multi-step workflow execution backed by Airflow |
+| **Code Generators** | Jinja2-based generators for Airflow DAGs, TdLoad DAGs, and dbt models |
+| **Clients** | Abstraction layer for Teradata, Airflow, Airbyte, dbt, and TTU (bteq/tdload/tbuild) |
+| **Metadata Store** | Optional persistence for execution history and registry cache (SQLite or JSON) |
 
 ---
 
-## Installation
-
-> **Audience**: End users who want to run the MCP server and use it with an LLM client (Copilot, Claude Desktop, Claude Code, etc.).
-
-### Prerequisites
-
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| Python | 3.10 -- 3.13 | Required |
-| Teradata database | Any supported version | Required for Teradata operations |
-| Teradata Tools & Utilities (TTU) | 17.20+ | Required on MCP client for BTEQ/TdLoad/TPT execution |
-| OpenSSH client | Any | Required on MCP client for DAG deployment to Airflow |
-| OpenSSH server | Any | Required on MCP client if Airflow executes BTEQ/TdLoad remotely via SSH |
-| Apache Airflow | 2.x | Optional -- needed for DAG orchestration |
-| Airbyte | OSS | Optional -- needed for data replication |
-| dbt + dbt-teradata | >=1.7,<2.0 + 0.19.0+ | Optional -- needed for transformations |
-
-### Steps
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Teradata/teradata-etl-mcp-server.git
-cd teradata-etl-mcp-server
-
-# 2. Create and activate a virtual environment
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# Linux/macOS
-source .venv/bin/activate
-
-# 3. Install the package with all extras (includes all optional dependencies)
-pip install -e ".[dev,all]"
-
-```
-
-```
-
-### Post-install Setup
-
-> Create a **separate workspace folder** for configuration files — do not place `.env` or `connections.yaml` inside the source repo (it is protected by pre-commit hooks that block `.env` commits).
-
-```bash
-# 5. Create a dedicated workspace folder outside the source repo
-mkdir ../teradata-etl-mcp-test
-cd ../teradata-etl-mcp-test
-
-# 6. Copy templates from the source repo
-cp ../teradata-etl-mcp-server/.env.example .env
-cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
-
-# 7. Edit .env with your Teradata, Airflow, Airbyte, and dbt settings
-# 8. Edit connections.yaml with your connection profiles (see Connection Profiles section)
-```
-
-### Verify Installation
-
-```bash
-# Start the server (stdio transport, default)
-python -m elt_mcp_server
-```
-
-### SSH Setup (Bidirectional)
+## SSH Setup (Bidirectional)
 
 For DAG deployment to Airflow and runtime BTEQ/TdLoad/TPT execution, bidirectional SSH is required between the MCP client and Airflow server.
 
@@ -303,8 +272,9 @@ Key sections in `.env.example`:
 | | `PIPELINE_DEFAULT_SCHEDULE_INTERVAL` | Default schedule for generated DAGs | No (default: `@daily`) |
 | | `PIPELINE_GENERATE_DBT_BY_DEFAULT` | Auto-generate dbt models with pipelines | No (default: `true`) |
 | **MCP Server** | `MCP_LOG_LEVEL` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` | No (default: `INFO`) |
-| | `MCP_LOG_FILE` | Log file path | No (default: `./logs/etl-mcp-server.log`) |
+| | `MCP_LOG_FILE` | Log file path | No (default: `./logs/teradata-etl-mcp-server.log`) |
 | | `MCP_FAIL_FAST_ON_STARTUP` | Crash on connectivity failure at startup | No (default: `false`) |
+| | `MCP_REDIS_URL` | Redis URL for distributed circuit breaker | No |
 | **TTU** | `TTU_ENABLED` | Enable local TPT/BTEQ/TdLoad execution | No (default: `false`) |
 | | `TTU_TTU_VERSION` | TTU version (e.g., `17.20`); auto-detected if not set | No |
 | | `TTU_TPT_BINARY_PATH` | Path to `tbuild` binary (auto-detected from version) | No |
@@ -398,10 +368,10 @@ aliases:
 
 ```bash
 # Start the server (stdio transport — works with any MCP client)
-python -m elt_mcp_server
+python -m teradata_etl_mcp_server
 
 # Or using the console script
-etl-mcp-server
+teradata-etl-mcp-server
 ```
 
 ### Using with Claude Desktop
@@ -411,9 +381,9 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "etl-mcp": {
-      "command": "etl-mcp-server",
-      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"]
+    "teradata-etl-mcp": {
+      "command": "teradata-etl-mcp-server",
+      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-workspace/.env"]
     }
   }
 }
@@ -428,15 +398,15 @@ Add to your VS Code MCP configuration (`.vscode/mcp.json` in your workspace):
 ```json
 {
   "servers": {
-    "etl-mcp": {
-      "command": "etl-mcp-server",
-      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"]
+    "teradata-etl-mcp": {
+      "command": "teradata-etl-mcp-server",
+      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-workspace/.env"]
     }
   }
 }
 ```
 
-> Use an absolute path to `.env`. On Windows use forward slashes or escaped backslashes: `C:/Users/you/teradata-etl-mcp-test/.env`.
+> Use an absolute path to `.env`. On Windows use forward slashes or escaped backslashes: `C:/Users/you/teradata-etl-mcp-workspace/.env`.
 
 ### Example: Create an Airbyte Pipeline
 
@@ -554,7 +524,7 @@ that selects the operation. This keeps the MCP tool list concise while preservin
 
 ```bash
 # Clone and install with dev dependencies
-git clone https://github.com/Teradata/teradata-etl-mcp-server.git
+git clone <repository-url>
 cd teradata-etl-mcp-server
 python -m venv .venv
 .venv\Scripts\activate          # Windows
@@ -627,30 +597,18 @@ Coverage is configured in `pyproject.toml` and runs automatically with pytest. R
 
 #### Test Files
 
-| Test File | Covers |
-|-----------|--------|
-| `test_airbyte_client.py` | Airbyte client + all data movement tools (288 tests) |
-| `test_credential_resolver.py` | Profile resolution, env var interpolation, aliases (13 tests) |
-| `test_response_sanitizer.py` | Sensitive key masking in tool responses (18 tests) |
-| `test_connection_profile_tools.py` | list/reload connection profile tools (5 tests) |
-| `test_airflow_client.py` | Airflow REST API client |
-| `test_teradata_client.py` | Teradata database client |
-| `test_dbt_client.py` | dbt CLI wrapper |
-| `test_config.py` | Settings and configuration loading |
-| `test_orchestrator.py` | Pipeline orchestrator |
-| `test_pipeline_management_tools.py` | Pipeline management MCP tools |
-| `test_metadata_discovery_tools.py` | Metadata discovery MCP tools |
-| `test_airflow_dag_generator.py` | Airflow DAG code generation |
-| `test_airflow_tdload_dag_generator.py` | TdLoad DAG code generation |
-| `test_csv_analyzer.py` | CSV file analysis |
-| `test_dbt_generator.py` | dbt model code generation |
-| `test_bteq_generator.py` | BTEQ script generation |
-| `test_tpt_generator.py` | TPT script generation |
-| `test_intelligence_engine.py` | Transport method recommendation |
-| `test_metrics_collector.py` | Metrics collection |
-| `test_metadata_store.py` | Metadata persistence |
-| `test_plugin_manager.py` | Plugin system |
-| `test_validators.py` | Input validation utilities |
+`tests/unit/` contains 35 test files (~2,700 tests), all fully mocked — no live services needed:
+
+| Area | Test files |
+|------|-----------|
+| MCP tools | `test_airflow_pipeline_management_tools.py`, `test_orchestration_execution_tools.py`, `test_data_movement_tools.py`, `test_dbt_management_tools.py`, `test_metadata_discovery_tools.py`, `test_connection_profile_tools.py`, `test_ttu_tools.py` |
+| Clients | `test_airbyte_client.py`, `test_async_airflow_client.py`, `test_teradata_client.py`, `test_dbt_client.py`, `test_ttu_client.py` |
+| Auth & security | `test_teradata_auth.py`, `test_multi_auth.py`, `test_auth_resolver.py`, `test_credential_resolver.py`, `test_response_sanitizer.py`, `test_tls.py` |
+| Code generators | `test_airflow_dag_generator.py`, `test_airflow_tdload_dag_generator.py`, `test_dbt_generator.py`, `test_escaping.py` |
+| Server & orchestration | `test_server.py`, `test_server_middleware.py`, `test_orchestrator.py`, `test_client_factory.py`, `test_workflow.py`, `test_workflow_protocol.py`, `test_airflow_orchestrator.py` |
+| Config & utilities | `test_config.py`, `test_workspace_settings.py`, `test_metadata_store.py`, `test_csv_analyzer.py`, `test_file_operations.py`, `test_validators.py` |
+
+`tests/integration/` requires live Teradata/Airflow/Airbyte services and is not run in CI.
 
 #### Writing Tests
 
@@ -712,66 +670,72 @@ pre-commit run bandit
 ```
 teradata-etl-mcp-server/
 |-- src/
-|   |-- elt_mcp_server/
-|       |-- __init__.py
+|   |-- teradata_etl_mcp_server/
+|       |-- __init__.py              # Package version + description
 |       |-- __main__.py              # Console script entrypoint
 |       |-- main.py                  # CLI (argparse, signal handling, async)
 |       |-- server.py                # FastMCP server, tool registration
+|       |-- server_middleware.py     # FastMCP middleware (param aliases, error enrichment)
 |       |-- orchestrator.py          # PipelineOrchestrator (lazy-loads clients)
-|       |-- config.py                # Pydantic settings (env vars, .env, YAML)
+|       |-- client_factory.py        # Client factory (dependency injection)
+|       |-- config.py                # Pydantic settings (env vars, .env)
 |       |-- credential_resolver.py   # Connection profile resolution
 |       |-- response_sanitizer.py    # Mask sensitive keys in responses
-|       |-- intelligence.py          # Transport method recommendation engine
+|       |
+|       |-- auth/
+|       |   |-- resolver.py          # Composes TeradataAuth from config sources
+|       |   |-- teradata_auth.py     # Teradata auth identity + per-consumer renderers
 |       |
 |       |-- clients/
-|       |   |-- airbyte_client.py    # Airbyte Public API v1 client
-|       |   |-- airflow_client.py    # Airflow REST API client
-|       |   |-- teradata_client.py   # Teradata SQL client
-|       |   |-- dbt_client.py        # dbt CLI wrapper
+|       |   |-- airbyte_client.py        # Airbyte Public API v1 client
+|       |   |-- async_airflow_client.py  # Async Airflow REST API client
+|       |   |-- teradata_client.py       # Teradata SQL client (teradatasql)
+|       |   |-- dbt_client.py            # dbt CLI wrapper
+|       |   |-- ttu_client.py            # TTU subprocess wrapper (bteq, tdload, tbuild)
 |       |
 |       |-- tools/
-|       |   |-- pipeline_management.py      # 20 pipeline CRUD + Airflow connection tools
-|       |   |-- orchestration_execution.py  # 6 DAG run + monitoring tools
-|       |   |-- data_movement.py            # 21 Airbyte + TdLoad + CSV tools
-|       |   |-- dbt_management.py           # 27 dbt operation tools
-|       |   |-- governance_observability.py  # 5 lineage + audit + quality tools
-|       |   |-- metadata_discovery.py       # 10 table discovery + profiling tools
-|       |   |-- connection_profiles.py      # 2 profile listing/reload tools
-|       |   |-- environment_secrets.py      # 6 connection + env var tools
-|       |   |-- extensibility.py            # Plugin management tools
-|       |   |-- deployment_validator.py     # Deployment validation utilities
+|       |   |-- airflow_pipeline_management.py  # Pipeline deploy/control/validate + Airflow connections
+|       |   |-- orchestration_execution.py      # DAG trigger, monitor, admin
+|       |   |-- data_movement.py                # Airbyte + TdLoad + CSV tools
+|       |   |-- dbt_management.py               # dbt execute/docs/info/model tools
+|       |   |-- metadata_discovery.py           # Table discovery + profiling tools
+|       |   |-- connection_profiles.py          # Profile list/reload tool
+|       |   |-- ttu_tools.py                    # TTU execution tool
+|       |   |-- utils.py                        # Shared tool helpers (error handling, decorators)
 |       |
 |       |-- generators/
-|       |   |-- airflow_dag_generator.py         # Airflow DAG Jinja2 templates
+|       |   |-- airflow_dag_generator.py         # Airflow DAG generation (Jinja2)
 |       |   |-- airflow_tdload_dag_generator.py  # TdLoad DAG generation
-|       |   |-- bteq_generator.py                # BTEQ script generation
 |       |   |-- dbt_generator.py                 # dbt model generation
-|       |   |-- tpt_generator.py                 # TPT script generation
-|       |
-|       |-- monitoring/
-|       |   |-- metrics_collector.py  # Prometheus-format metrics
-|       |
-|       |-- plugins/
-|       |   |-- plugin_manager.py     # Plugin discovery and lifecycle
+|       |   |-- escaping.py                      # Safe escaping for generated code
 |       |
 |       |-- storage/
 |       |   |-- metadata_store.py     # SQLite/JSON metadata persistence
 |       |
 |       |-- utils/
-|           |-- csv_analyzer.py       # CSV file analysis
-|           |-- file_operations.py    # File I/O utilities
-|           |-- validators.py         # Input validation
+|       |   |-- audit_logger.py       # JSONL audit logging
+|       |   |-- circuit_breaker.py    # Circuit breaker for Airflow calls
+|       |   |-- csv_analyzer.py       # CSV file analysis
+|       |   |-- file_operations.py    # File I/O utilities
+|       |   |-- tls.py                # Shared TLS config for outbound HTTPS
+|       |   |-- validators.py         # Input validation
+|       |
+|       |-- workflow/
+|           |-- protocol.py               # WorkflowOrchestratorProtocol
+|           |-- airflow_orchestrator.py   # Airflow-backed workflow orchestrator
 |
 |-- tests/
-|   |-- unit/                  # 27 test files, 324+ tests
+|   |-- unit/                  # 35 test files, ~2,700 tests (fully mocked)
+|   |-- integration/           # Requires live Teradata/Airflow/Airbyte services
 |
-|-- scripts/                   # Utility scripts for manual testing
-|-- airflow_dags/              # Generated DAG output directory
+|-- scripts/                   # Utility scripts (check_env.py, install-hooks.sh)
 |-- .env.example               # Environment variable template
 |-- connections.yaml.example   # Connection profile template
 |-- .pre-commit-config.yaml    # Pre-commit hook configuration
 |-- pyproject.toml             # Build config, tool settings, dependencies
+|-- build_wheel.py             # Build/publish helper (wheel, smoke test, twine)
 |-- DESIGN.md                  # High-level architecture design document
+|-- SSH-SETUP.md               # Bidirectional SSH setup guide
 ```
 
 ---
@@ -832,3 +796,5 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines 
 ## License
 
 This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+
+---

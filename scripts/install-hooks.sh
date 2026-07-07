@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install git hooks for ELT MCP Server test VMs.
+# Install git hooks for Teradata ETL MCP Server test VMs.
 # Run once after cloning: bash scripts/install-hooks.sh
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"

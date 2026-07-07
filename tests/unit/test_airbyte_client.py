@@ -10,7 +10,7 @@ import httpx
 import pytest
 from httpx import HTTPStatusError, RequestError
 
-from elt_mcp_server.clients.airbyte_client import (
+from teradata_etl_mcp_server.clients.airbyte_client import (
     AirbyteAPIError,
     AirbyteClient,
     AirbyteConnectionError,
@@ -21,8 +21,8 @@ from elt_mcp_server.clients.airbyte_client import (
     RateLimiter,
     to_public_api_sync_mode,
 )
-from elt_mcp_server.clients.async_airflow_client import AsyncAirflowAPIError
-from elt_mcp_server.tools.data_movement import (
+from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowAPIError
+from teradata_etl_mcp_server.tools.data_movement import (
     DiscoveryCache,
     _baseline_normalize_config,
     _coerce_to_type,
@@ -63,7 +63,7 @@ def _bypass_csv_path_security_check(monkeypatch):
     existing test fixtures work unchanged. This only replaces the binding in
     ``data_movement``, not the canonical helper in ``utils.file_operations``.
     """
-    from elt_mcp_server.tools import data_movement
+    from teradata_etl_mcp_server.tools import data_movement
 
     monkeypatch.setattr(
         data_movement,
@@ -4321,17 +4321,17 @@ class TestGenerateCsvDagFull:
         mock_gen.generate_file_loading_dag.return_value = "# DAG code"
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG code",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
@@ -4374,17 +4374,17 @@ class TestGenerateCsvDagFull:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
@@ -4421,17 +4421,17 @@ class TestGenerateCsvDagFull:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
@@ -4468,17 +4468,17 @@ class TestGenerateCsvDagFull:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
@@ -4525,17 +4525,17 @@ class TestGenerateCsvDagFull:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -4583,17 +4583,17 @@ class TestGenerateCsvDagFull:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -4642,7 +4642,7 @@ class TestGenerateCsvDagFull:
         orch.settings.teradata.database = "from_settings_db"
         tools = self._register(orch)
 
-        with patch("elt_mcp_server.tools.data_movement.Path") as MockPath:
+        with patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath:
             mock_csv_file = Mock()
             mock_csv_file.exists.return_value = False
             mock_csv_file.resolve.return_value = mock_csv_file
@@ -4709,17 +4709,17 @@ class TestLoadCsvToTeradataComplete:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
@@ -4789,22 +4789,22 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
         ):
@@ -4849,22 +4849,22 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
         ):
@@ -4910,22 +4910,22 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
         ):
@@ -4972,22 +4972,22 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
         ):
@@ -5040,22 +5040,22 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
         ):
@@ -5115,26 +5115,26 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
             patch(
-                "elt_mcp_server.tools.orchestration_execution.register_orchestration_tools",
+                "teradata_etl_mcp_server.tools.orchestration_execution.register_orchestration_tools",
                 return_value=oe_tools_dict,
             ),
         ):
@@ -5183,26 +5183,26 @@ class TestLoadCsvToTeradataComplete:
         }
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread", new_callable=lambda: AsyncMock),
             patch(
-                "elt_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
+                "teradata_etl_mcp_server.tools.airflow_pipeline_management.register_pipeline_tools",
                 return_value=pm_tools_dict,
             ),
             patch(
-                "elt_mcp_server.tools.orchestration_execution.register_orchestration_tools",
+                "teradata_etl_mcp_server.tools.orchestration_execution.register_orchestration_tools",
                 return_value=oe_tools_dict,
             ),
         ):
@@ -5289,14 +5289,14 @@ class TestTableTransferDagFull:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
                 return_value="# DAG",
             ),
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ", {"MCP_CLIENT_SSH_HOST": "10.0.0.1", "MCP_CLIENT_SSH_USER": "testuser", "MCP_CLIENT_SSH_PASSWORD": "ssh-pass"}
@@ -5338,14 +5338,14 @@ class TestTableTransferDagFull:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
                 return_value="# DAG",
             ),
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ", {"MCP_CLIENT_SSH_HOST": "10.0.0.1", "MCP_CLIENT_SSH_USER": "testuser", "MCP_CLIENT_SSH_PASSWORD": "ssh-pass"}
@@ -5384,14 +5384,14 @@ class TestTableTransferDagFull:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
                 return_value="# DAG",
             ),
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ", {"MCP_CLIENT_SSH_HOST": "10.0.0.1", "MCP_CLIENT_SSH_USER": "testuser", "MCP_CLIENT_SSH_PASSWORD": "ssh-pass"}
@@ -5452,14 +5452,14 @@ class TestTableTransferDagFull:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
                 return_value="# DAG",
             ),
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ", {"MCP_CLIENT_SSH_HOST": "10.0.0.1", "MCP_CLIENT_SSH_USER": "testuser", "MCP_CLIENT_SSH_PASSWORD": "ssh-pass"}
@@ -5510,14 +5510,14 @@ class TestTableTransferDagFull:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
                 return_value="# DAG",
             ),
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ", {"MCP_CLIENT_SSH_HOST": "10.0.0.1", "MCP_CLIENT_SSH_USER": "testuser", "MCP_CLIENT_SSH_PASSWORD": "ssh-pass"}
@@ -7016,17 +7016,17 @@ class TestCsvDagConnectionIdDerivation:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7080,17 +7080,17 @@ class TestCsvDagConnectionIdDerivation:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7189,17 +7189,17 @@ class TestCsvDagConnectionWarnings:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7251,17 +7251,17 @@ class TestCsvDagConnectionWarnings:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7364,17 +7364,17 @@ class TestCsvDagSshHostRequired:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7477,17 +7477,17 @@ class TestCsvDagSshPortValidation:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7544,17 +7544,17 @@ class TestCsvDagSshPortValidation:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7665,17 +7665,17 @@ class TestCsvDagStrictSsh:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7742,17 +7742,17 @@ class TestCsvDagStrictSsh:
         mock_analysis = self._mock_csv_analysis()
 
         with (
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch(
-                "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
+                "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer.analyze_csv",
                 return_value=mock_analysis,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_file_loading_dag",
                 return_value="# DAG",
             ),
             patch("asyncio.to_thread") as mock_thread,
@@ -7893,14 +7893,14 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
                 return_value="# DAG",
             ),
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ", {"MCP_CLIENT_SSH_HOST": "10.0.0.1", "MCP_CLIENT_SSH_USER": "testuser", "MCP_CLIENT_SSH_PASSWORD": "ssh-pass"}
@@ -8365,7 +8365,7 @@ class TestConnectionPoolLimitsHardening:
         client = _make_client(max_connections=50, max_keepalive_connections=10)
         try:
             with patch(
-                "elt_mcp_server.clients.airbyte_client.httpx.AsyncClient"
+                "teradata_etl_mcp_server.clients.airbyte_client.httpx.AsyncClient"
             ) as mock_async_client:
                 mock_client_instance = AsyncMock()
                 mock_async_client.return_value = mock_client_instance
@@ -8513,7 +8513,7 @@ class TestWaitForJobMonotonicHardening:
         mock_http.request = AsyncMock(return_value=mock_resp)
         client._client = mock_http
 
-        with patch("elt_mcp_server.clients.airbyte_client.time") as mock_time:
+        with patch("teradata_etl_mcp_server.clients.airbyte_client.time") as mock_time:
             mock_time.monotonic = MagicMock(side_effect=[100.0, 100.5])
             # time.time should NOT be called for timeout logic
             mock_time.time = MagicMock(side_effect=AssertionError("should use monotonic"))

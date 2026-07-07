@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from elt_mcp_server.generators.dbt_generator import DBTGenerator
+from teradata_etl_mcp_server.generators.dbt_generator import DBTGenerator
 
 
 @pytest.fixture

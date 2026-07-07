@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from elt_mcp_server.config import Settings
+from teradata_etl_mcp_server.config import Settings
 
 
 def _minimal_env(**overrides: str) -> dict[str, str]:
@@ -76,7 +76,7 @@ class TestWorkspaceDirDefault:
 
 class TestRelativePathJoinedUnderWorkspace:
     """Relative artefact paths default to bare names (``dbt_project``,
-    ``ttu_scripts``, ``airflow_dags``, ``logs/...``, ``.elt-mcp/metadata.db``)
+    ``ttu_scripts``, ``airflow_dags``, ``logs/...``, ``.etl-mcp/metadata.db``)
     — the ``validate_settings`` model-validator joins each under
     ``workspace_dir`` so callers see a fully-resolved absolute path."""
 
@@ -102,9 +102,9 @@ class TestRelativePathJoinedUnderWorkspace:
                 assert s.dbt.project_dir == ws / "dbt_project"
                 assert s.ttu.scripts_dir == ws / "ttu_scripts"
                 assert s.pipeline.dags_output_dir == ws / "airflow_dags"
-                assert s.mcp.log_file == ws / "logs" / "elt-mcp-server.log"
+                assert s.mcp.log_file == ws / "logs" / "teradata-etl-mcp-server.log"
                 assert s.observability.audit_log_file == ws / "logs" / "audit.jsonl"
-                assert s.mcp.metadata_db_path == ws / ".elt-mcp" / "metadata.db"
+                assert s.mcp.metadata_db_path == ws / ".etl-mcp" / "metadata.db"
                 # Directories created
                 for d in (
                     s.dbt.project_dir,

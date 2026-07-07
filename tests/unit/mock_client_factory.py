@@ -6,7 +6,7 @@ Moved from production client_factory.py — mock logic does not belong in produc
 import logging
 from typing import Any
 
-from elt_mcp_server.client_factory import ClientFactoryBase
+from teradata_etl_mcp_server.client_factory import ClientFactoryBase
 
 logger = logging.getLogger(__name__)
 

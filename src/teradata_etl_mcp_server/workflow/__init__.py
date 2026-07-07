@@ -13,7 +13,7 @@ Available Orchestrators:
     - AirflowOrchestrator: Full implementation for Apache Airflow
 
 Example:
-    from elt_mcp_server.workflow import (
+    from teradata_etl_mcp_server.workflow import (
         WorkflowOrchestratorProtocol,
         AirflowOrchestrator,
         WorkflowState,

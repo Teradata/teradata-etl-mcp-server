@@ -15,7 +15,7 @@ from collections.abc import AsyncGenerator
 
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import (
+from teradata_etl_mcp_server.clients.async_airflow_client import (
     AsyncAirflowClient,
     AsyncAirflowClientError,
 )

@@ -1,14 +1,14 @@
-# ELT MCP Server - High-Level Design
+# Teradata ETL MCP Server - High-Level Design
 
 ## Architecture Overview
 
-The ELT MCP Server is a Model Context Protocol server that orchestrates end-to-end data pipelines by integrating Teradata, dbt, Airbyte, and Apache Airflow. It exposes 22 router tools to MCP clients (e.g. VS Code Copilot) via stdio transport.
+The Teradata ETL MCP Server is a Model Context Protocol server that orchestrates end-to-end data pipelines by integrating Teradata, dbt, Airbyte, and Apache Airflow. It exposes 22 router tools to MCP clients (e.g. VS Code Copilot) via stdio transport.
 
 ## System Architecture
 
 ```
 +-----------------------------------------------------------------------------+
-|                          ELT MCP Server                                     |
+|                          Teradata ETL MCP Server                                     |
 |                     (FastMCP Framework)                                      |
 +-----------------------------------------------------------------------------+
 |                                                                              |
@@ -569,9 +569,9 @@ Execution metrics (rows transferred, duration, test pass/fail counts) are collec
 ### 1. Standalone stdio (any MCP client)
 
 ```bash
-elt-mcp-server
+teradata-etl-mcp-server
 # or
-elt-mcp-server --env-file /path/to/.env
+teradata-etl-mcp-server --env-file /path/to/.env
 ```
 
 VS Code `settings.json`:
@@ -579,7 +579,7 @@ VS Code `settings.json`:
 {
   "github.copilot.chat.mcp.servers": {
     "elt-pipeline": {
-      "command": "elt-mcp-server",
+      "command": "teradata-etl-mcp-server",
       "args": ["--env-file", "/absolute/path/to/.env"]
     }
   }
@@ -591,8 +591,8 @@ VS Code `settings.json`:
 ```yaml
 # docker-compose.yml (example)
 services:
-  elt-mcp-server:
-    image: elt-mcp-server:latest
+  teradata-etl-mcp-server:
+    image: teradata-etl-mcp-server:latest
     environment:
       - TERADATA_HOST=prod-td.company.com
       - TERADATA_USERNAME=svc_elt
@@ -615,7 +615,7 @@ The server runs on the local development machine alongside the MCP client. Gener
 |                                                                              |
 |  MCP Client (VS Code / Claude Desktop)                                       |
 |    |  STDIO (JSON-RPC)                                                        |
-|  ELT MCP Server (Python Process)                                             |
+|  Teradata ETL MCP Server (Python Process)                                             |
 |    |  generates                                                               |
 |  Generated Artifacts: ./airflow_dags/*.py, ./dbt_project/, ./test_data/      |
 +------------------------------------------------------------------------------+
@@ -796,17 +796,17 @@ Airflow Worker
 
 ```bash
 # Run server (default: stdio)
-elt-mcp-server
+teradata-etl-mcp-server
 
 # Show current configuration (masks secrets)
-elt-mcp-server config
-elt-mcp-server config --json
+teradata-etl-mcp-server config
+teradata-etl-mcp-server config --json
 
 # Validate configuration and test all connections
-elt-mcp-server validate
+teradata-etl-mcp-server validate
 
 # Show version
-elt-mcp-server version
+teradata-etl-mcp-server version
 ```
 
 ---

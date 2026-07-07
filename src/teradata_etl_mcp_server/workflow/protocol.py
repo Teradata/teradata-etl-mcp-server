@@ -2,7 +2,7 @@
 
 This module defines the abstract protocol that all workflow orchestrators
 (Airflow, Dagster, Prefect, etc.) must implement to be used with the
-ELT MCP Server.
+Teradata ETL MCP Server.
 
 The protocol provides a unified interface for:
 - Triggering workflow executions
@@ -165,7 +165,7 @@ class WorkflowOrchestratorProtocol(Protocol):
     """Protocol defining the interface for workflow orchestrators.
 
     All workflow orchestrator implementations (Airflow, Dagster, Prefect)
-    must implement this protocol to be compatible with the ELT MCP Server.
+    must implement this protocol to be compatible with the Teradata ETL MCP Server.
 
     This enables:
     - Swapping orchestrators without changing tool implementations

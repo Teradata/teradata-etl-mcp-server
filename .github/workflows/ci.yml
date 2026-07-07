@@ -1,4 +1,4 @@
-# CI — Lint, type-check, and test the ELT MCP Server Python package.
+# CI — Lint, type-check, and test the Teradata ETL MCP Server Python package.
 #
 # Runs on every push and pull request to develop and main branches.
 # Uses self-hosted ARC runners per Teradata-PE org policy.

@@ -1,9 +1,9 @@
-"""Main entry point and CLI for ELT MCP Server.
+"""Main entry point and CLI for Teradata ETL MCP Server.
 
 This module provides the command-line interface and entry point for running
-the ELT MCP Server via stdio transport.
+the Teradata ETL MCP Server via stdio transport.
 
-Import discipline: keep this module cheap to import. ``python -m elt_mcp_server
+Import discipline: keep this module cheap to import. ``python -m teradata_etl_mcp_server
 --help`` is the health check the VS Code extension runs during startup under
 a 15-second timeout, and cold-path loading of ``.server`` (which transitively
 imports fastmcp, pandas, teradatasql, etc.) can exceed that window on Windows
@@ -148,7 +148,7 @@ def _format_config_error(exc: ValidationError, env_file: Path | None) -> str:
     lines += [
         "  How to fix:",
         "    1. Pass the .env file explicitly:",
-        "         elt-mcp-server --env-file /absolute/path/to/.env",
+        "         teradata-etl-mcp-server --env-file /absolute/path/to/.env",
         "    2. Or place a .env file in the working directory the server is launched from.",
         "    3. Or set the missing variables directly in your system environment.",
     ]
@@ -238,7 +238,7 @@ async def run_stdio_async():
     app = create_app_with_lifespan(settings)
     server = get_server_instance()
 
-    print("[OK] ELT MCP Server starting with stdio transport...", file=sys.stderr)
+    print("[OK] Teradata ETL MCP Server starting with stdio transport...", file=sys.stderr)
     print(f"  Environment: {settings.environment}", file=sys.stderr)
     print(f"  Teradata: {settings.teradata.host}", file=sys.stderr)
     print(f"  Airflow: {settings.airflow.base_url}", file=sys.stderr)
@@ -271,7 +271,7 @@ def cmd_config(args: argparse.Namespace):
         print(_format_config_error(e, args.env_file), file=sys.stderr)
         sys.exit(1)
 
-    print("ELT MCP Server Configuration")
+    print("Teradata ETL MCP Server Configuration")
     print("=" * 60)
     print(f"\n  Environment: {settings.environment}")
     print("\n  Teradata:")
@@ -322,7 +322,7 @@ def cmd_validate(args: argparse.Namespace):
     """Validate configuration and connections."""
     from .config import load_settings  # deferred — see module docstring
 
-    print("Validating ELT MCP Server configuration...")
+    print("Validating Teradata ETL MCP Server configuration...")
     print("=" * 60)
 
     try:
@@ -442,7 +442,7 @@ def cmd_version(args: argparse.Namespace):
     """Show version information."""
     from . import __description__, __version__
 
-    print(f"ELT MCP Server v{__version__}")
+    print(f"Teradata ETL MCP Server v{__version__}")
     print(__description__)
     print("\nComponents:")
     print("  - FastMCP: 3.2.0+")
@@ -458,28 +458,28 @@ def cmd_version(args: argparse.Namespace):
 def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser."""
     parser = argparse.ArgumentParser(
-        prog="elt-mcp-server",
+        prog="teradata-etl-mcp-server",
         description="Unified data pipeline orchestration MCP server",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Run server (stdio transport — works with any MCP client)
-  elt-mcp-server
+  teradata-etl-mcp-server
 
   # Show configuration
-  elt-mcp-server config
+  teradata-etl-mcp-server config
 
   # Validate setup
-  elt-mcp-server validate
+  teradata-etl-mcp-server validate
 
   # Show version
-  elt-mcp-server version
+  teradata-etl-mcp-server version
 
 For VS Code integration, add to settings.json:
   {
     "github.copilot.chat.mcp.servers": {
       "elt-pipeline": {
-        "command": "elt-mcp-server",
+        "command": "teradata-etl-mcp-server",
         "args": []
       }
     }

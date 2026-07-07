@@ -15,7 +15,7 @@ class AuditLogger:
         self._enabled = enabled
         self._logger: logging.Logger | None = None
         if enabled:
-            self._logger = logging.getLogger("elt_mcp_server.audit")
+            self._logger = logging.getLogger("teradata_etl_mcp_server.audit")
             self._logger.propagate = False
             already_attached = any(
                 isinstance(h, logging.FileHandler)

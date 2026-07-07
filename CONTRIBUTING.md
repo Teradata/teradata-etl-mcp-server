@@ -9,7 +9,7 @@
 
 ```bash
 git clone https://github.com/Teradata/teradata-etl-mcp-server.git
-cd devtools-elt-mcp-server
+cd teradata-etl-mcp-server
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 # Linux/macOS: source .venv/bin/activate
@@ -20,11 +20,12 @@ pip install -e ".[dev,all]"
 
 ### Server-only changes (most common)
 
-1. Make your changes in `src/elt_mcp_server/`
+1. Make your changes in `src/teradata_etl_mcp_server/`
 2. Run tests: `pytest`
 3. Run linters: `ruff check src tests && ruff format --check src tests`
 4. Type check: `mypy src`
 5. Security scan: `bandit -c pyproject.toml -r src`
+
 
 ### Publishing
 

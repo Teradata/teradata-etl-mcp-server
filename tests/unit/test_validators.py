@@ -1,6 +1,6 @@
 """Unit tests for Validators.
 
-Tests the actual production API in elt_mcp_server.utils.validators:
+Tests the actual production API in teradata_etl_mcp_server.utils.validators:
 - ValidationError exception
 - ConnectionValidator (static methods returning tuple[bool, str | None])
 - PipelineValidator (static methods returning tuple[bool, str | None] or tuple[bool, list[str]])
@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-from elt_mcp_server.utils.validators import (
+from teradata_etl_mcp_server.utils.validators import (
     ConfigValidator,
     ConnectionValidator,
     DataValidator,
