@@ -99,7 +99,7 @@ teradata-etl-mcp-server = "teradata_etl_mcp_server.__main__:main"
 Homepage = "https://github.com/Teradata/teradata-etl-mcp-server"
 Documentation = "https://github.com/Teradata/teradata-etl-mcp-server#readme"
 Repository = "https://github.com/Teradata/teradata-etl-mcp-server"
-Issues = "https://github.com/Teradata/teradata-etl-mcp-server"
+Issues = "https://github.com/Teradata/teradata-etl-mcp-server/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -133,9 +133,9 @@ Response: sanitized -- LLM sees success status but NO passwords
 +---------------------------------------------------------------+
 |                   Pipeline Orchestrator                        |
 |  +-------------------+ +-------------+ +--------------------+ |
-|  | Credential        | | Intelligence| | Code Generators    | |
-|  | Resolver          | | Engine      | | (DAG, dbt, TPT,    | |
-|  | (connections.yaml)| |             | |  BTEQ, TdLoad)     | |
+|  | Credential        | | Workflow    | | Code Generators    | |
+|  | Resolver          | | Orchestrator| | (Airflow DAG,      | |
+|  | (connections.yaml)| | (Airflow)   | |  TdLoad, dbt)      | |
 |  +-------------------+ +-------------+ +--------------------+ |
 |  +-----------------+ +---------------+ +--------------------+ |
 |  | Response        | | Validators    | | Metadata Store     | |
@@ -145,10 +145,10 @@ Response: sanitized -- LLM sees success status but NO passwords
                               |
 +---------------------------------------------------------------+
 |                        Client Layer                            |
-|  +----------+ +----------+ +----------+ +----------+          |
-|  | Teradata | | Airflow  | | Airbyte  | |   dbt    |          |
-|  | Client   | | Client   | | Client   | | Client   |          |
-|  +----------+ +----------+ +----------+ +----------+          |
+|  +---------+ +---------+ +---------+ +---------+ +---------+  |
+|  | Teradata| | Airflow | | Airbyte | |   dbt   | |   TTU   |  |
+|  | Client  | | Client  | | Client  | | Client  | | Client  |  |
+|  +---------+ +---------+ +---------+ +---------+ +---------+  |
 +---------------------------------------------------------------+
                               |
 +---------------------------------------------------------------+
@@ -168,11 +168,10 @@ Response: sanitized -- LLM sees success status but NO passwords
 | **Pipeline Orchestrator** | Central coordinator; lazy-loads clients via `@property` |
 | **Credential Resolver** | Loads `connections.yaml`, resolves `${ENV_VAR}` interpolation, serves profiles by name |
 | **Response Sanitizer** | Deep-clones and masks sensitive keys (password, token, secret, etc.) in all tool responses |
-| **Intelligence Engine** | AI-driven transport method selection (Airbyte vs TPT) |
-| **Code Generators** | Jinja2-based generators for Airflow DAGs, dbt models, TPT scripts, BTEQ queries |
-| **Clients** | Abstraction layer for Teradata, Airflow, Airbyte, and dbt APIs |
-| **Metadata Store** | Optional persistence for execution history (SQLite or JSON) |
-| **Plugin Manager** | Extensibility framework for custom operators and validators |
+| **Workflow Orchestrator** | Protocol-based multi-step workflow execution backed by Airflow |
+| **Code Generators** | Jinja2-based generators for Airflow DAGs, TdLoad DAGs, and dbt models |
+| **Clients** | Abstraction layer for Teradata, Airflow, Airbyte, dbt, and TTU (bteq/tdload/tbuild) |
+| **Metadata Store** | Optional persistence for execution history and registry cache (SQLite or JSON) |
 
 ---
 
@@ -598,30 +597,18 @@ Coverage is configured in `pyproject.toml` and runs automatically with pytest. R
 
 #### Test Files
 
-| Test File | Covers |
-|-----------|--------|
-| `test_airbyte_client.py` | Airbyte client + all data movement tools (288 tests) |
-| `test_credential_resolver.py` | Profile resolution, env var interpolation, aliases (13 tests) |
-| `test_response_sanitizer.py` | Sensitive key masking in tool responses (18 tests) |
-| `test_connection_profile_tools.py` | list/reload connection profile tools (5 tests) |
-| `test_airflow_client.py` | Airflow REST API client |
-| `test_teradata_client.py` | Teradata database client |
-| `test_dbt_client.py` | dbt CLI wrapper |
-| `test_config.py` | Settings and configuration loading |
-| `test_orchestrator.py` | Pipeline orchestrator |
-| `test_pipeline_management_tools.py` | Pipeline management MCP tools |
-| `test_metadata_discovery_tools.py` | Metadata discovery MCP tools |
-| `test_airflow_dag_generator.py` | Airflow DAG code generation |
-| `test_airflow_tdload_dag_generator.py` | TdLoad DAG code generation |
-| `test_csv_analyzer.py` | CSV file analysis |
-| `test_dbt_generator.py` | dbt model code generation |
-| `test_bteq_generator.py` | BTEQ script generation |
-| `test_tpt_generator.py` | TPT script generation |
-| `test_intelligence_engine.py` | Transport method recommendation |
-| `test_metrics_collector.py` | Metrics collection |
-| `test_metadata_store.py` | Metadata persistence |
-| `test_plugin_manager.py` | Plugin system |
-| `test_validators.py` | Input validation utilities |
+`tests/unit/` contains 35 test files (~2,700 tests), all fully mocked — no live services needed:
+
+| Area | Test files |
+|------|-----------|
+| MCP tools | `test_airflow_pipeline_management_tools.py`, `test_orchestration_execution_tools.py`, `test_data_movement_tools.py`, `test_dbt_management_tools.py`, `test_metadata_discovery_tools.py`, `test_connection_profile_tools.py`, `test_ttu_tools.py` |
+| Clients | `test_airbyte_client.py`, `test_async_airflow_client.py`, `test_teradata_client.py`, `test_dbt_client.py`, `test_ttu_client.py` |
+| Auth & security | `test_teradata_auth.py`, `test_multi_auth.py`, `test_auth_resolver.py`, `test_credential_resolver.py`, `test_response_sanitizer.py`, `test_tls.py` |
+| Code generators | `test_airflow_dag_generator.py`, `test_airflow_tdload_dag_generator.py`, `test_dbt_generator.py`, `test_escaping.py` |
+| Server & orchestration | `test_server.py`, `test_server_middleware.py`, `test_orchestrator.py`, `test_client_factory.py`, `test_workflow.py`, `test_workflow_protocol.py`, `test_airflow_orchestrator.py` |
+| Config & utilities | `test_config.py`, `test_workspace_settings.py`, `test_metadata_store.py`, `test_csv_analyzer.py`, `test_file_operations.py`, `test_validators.py` |
+
+`tests/integration/` requires live Teradata/Airflow/Airbyte services and is not run in CI.
 
 #### Writing Tests
 
@@ -684,65 +671,71 @@ pre-commit run bandit
 teradata-etl-mcp-server/
 |-- src/
 |   |-- teradata_etl_mcp_server/
-|       |-- __init__.py
+|       |-- __init__.py              # Package version + description
 |       |-- __main__.py              # Console script entrypoint
 |       |-- main.py                  # CLI (argparse, signal handling, async)
 |       |-- server.py                # FastMCP server, tool registration
+|       |-- server_middleware.py     # FastMCP middleware (param aliases, error enrichment)
 |       |-- orchestrator.py          # PipelineOrchestrator (lazy-loads clients)
-|       |-- config.py                # Pydantic settings (env vars, .env, YAML)
+|       |-- client_factory.py        # Client factory (dependency injection)
+|       |-- config.py                # Pydantic settings (env vars, .env)
 |       |-- credential_resolver.py   # Connection profile resolution
 |       |-- response_sanitizer.py    # Mask sensitive keys in responses
-|       |-- intelligence.py          # Transport method recommendation engine
+|       |
+|       |-- auth/
+|       |   |-- resolver.py          # Composes TeradataAuth from config sources
+|       |   |-- teradata_auth.py     # Teradata auth identity + per-consumer renderers
 |       |
 |       |-- clients/
-|       |   |-- airbyte_client.py    # Airbyte Public API v1 client
-|       |   |-- airflow_client.py    # Airflow REST API client
-|       |   |-- teradata_client.py   # Teradata SQL client
-|       |   |-- dbt_client.py        # dbt CLI wrapper
+|       |   |-- airbyte_client.py        # Airbyte Public API v1 client
+|       |   |-- async_airflow_client.py  # Async Airflow REST API client
+|       |   |-- teradata_client.py       # Teradata SQL client (teradatasql)
+|       |   |-- dbt_client.py            # dbt CLI wrapper
+|       |   |-- ttu_client.py            # TTU subprocess wrapper (bteq, tdload, tbuild)
 |       |
 |       |-- tools/
-|       |   |-- pipeline_management.py      # 20 pipeline CRUD + Airflow connection tools
-|       |   |-- orchestration_execution.py  # 6 DAG run + monitoring tools
-|       |   |-- data_movement.py            # 21 Airbyte + TdLoad + CSV tools
-|       |   |-- dbt_management.py           # 27 dbt operation tools
-|       |   |-- governance_observability.py  # 5 lineage + audit + quality tools
-|       |   |-- metadata_discovery.py       # 10 table discovery + profiling tools
-|       |   |-- connection_profiles.py      # 2 profile listing/reload tools
-|       |   |-- environment_secrets.py      # 6 connection + env var tools
-|       |   |-- extensibility.py            # Plugin management tools
-|       |   |-- deployment_validator.py     # Deployment validation utilities
+|       |   |-- airflow_pipeline_management.py  # Pipeline deploy/control/validate + Airflow connections
+|       |   |-- orchestration_execution.py      # DAG trigger, monitor, admin
+|       |   |-- data_movement.py                # Airbyte + TdLoad + CSV tools
+|       |   |-- dbt_management.py               # dbt execute/docs/info/model tools
+|       |   |-- metadata_discovery.py           # Table discovery + profiling tools
+|       |   |-- connection_profiles.py          # Profile list/reload tool
+|       |   |-- ttu_tools.py                    # TTU execution tool
+|       |   |-- utils.py                        # Shared tool helpers (error handling, decorators)
 |       |
 |       |-- generators/
-|       |   |-- airflow_dag_generator.py         # Airflow DAG Jinja2 templates
+|       |   |-- airflow_dag_generator.py         # Airflow DAG generation (Jinja2)
 |       |   |-- airflow_tdload_dag_generator.py  # TdLoad DAG generation
-|       |   |-- bteq_generator.py                # BTEQ script generation
 |       |   |-- dbt_generator.py                 # dbt model generation
-|       |   |-- tpt_generator.py                 # TPT script generation
-|       |
-|       |-- monitoring/
-|       |   |-- metrics_collector.py  # Prometheus-format metrics
-|       |
-|       |-- plugins/
-|       |   |-- plugin_manager.py     # Plugin discovery and lifecycle
+|       |   |-- escaping.py                      # Safe escaping for generated code
 |       |
 |       |-- storage/
 |       |   |-- metadata_store.py     # SQLite/JSON metadata persistence
 |       |
 |       |-- utils/
-|           |-- csv_analyzer.py       # CSV file analysis
-|           |-- file_operations.py    # File I/O utilities
-|           |-- validators.py         # Input validation
+|       |   |-- audit_logger.py       # JSONL audit logging
+|       |   |-- circuit_breaker.py    # Circuit breaker for Airflow calls
+|       |   |-- csv_analyzer.py       # CSV file analysis
+|       |   |-- file_operations.py    # File I/O utilities
+|       |   |-- tls.py                # Shared TLS config for outbound HTTPS
+|       |   |-- validators.py         # Input validation
+|       |
+|       |-- workflow/
+|           |-- protocol.py               # WorkflowOrchestratorProtocol
+|           |-- airflow_orchestrator.py   # Airflow-backed workflow orchestrator
 |
 |-- tests/
-|   |-- unit/                  # 27 test files, 324+ tests
+|   |-- unit/                  # 35 test files, ~2,700 tests (fully mocked)
+|   |-- integration/           # Requires live Teradata/Airflow/Airbyte services
 |
-|-- scripts/                   # Utility scripts for manual testing
-|-- airflow_dags/              # Generated DAG output directory
+|-- scripts/                   # Utility scripts (check_env.py, install-hooks.sh)
 |-- .env.example               # Environment variable template
 |-- connections.yaml.example   # Connection profile template
 |-- .pre-commit-config.yaml    # Pre-commit hook configuration
 |-- pyproject.toml             # Build config, tool settings, dependencies
+|-- build_wheel.py             # Build/publish helper (wheel, smoke test, twine)
 |-- DESIGN.md                  # High-level architecture design document
+|-- SSH-SETUP.md               # Bidirectional SSH setup guide
 ```
 
 ---

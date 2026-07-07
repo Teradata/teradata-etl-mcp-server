@@ -535,7 +535,7 @@ def stage_wheel_build(repo_root: Path, pyver: str) -> list[Path]:
 
 def stage_wheel_smoketest(wheel_path: Path, pyver: str) -> None:
     banner("5", TOTAL, "Smoke-test wheel in fresh venv")
-    smoke_dir = Path(tempfile.mkdtemp(prefix="elt-smoketest-"))
+    smoke_dir = Path(tempfile.mkdtemp(prefix="etl-smoketest-"))
     try:
         venv_dir = smoke_dir / "venv"
         run([sys.executable, "-m", "venv", str(venv_dir)], Path.cwd(), "venv create")

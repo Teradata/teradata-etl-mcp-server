@@ -13,4 +13,4 @@ except Exception:
     __version__ = "1.0.0"
 
 # Short description for CLI `version` command
-__description__ = "Unified MCP server for ELT operations with Teradata, Airbyte, Airflow, and dbt"
+__description__ = "Unified MCP server for ELT operations with Teradata, TTU, Airbyte, Airflow, and dbt"
