@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from elt_mcp_server.config import (
+from teradata_etl_mcp_server.config import (
     AirbyteSettings,
     AirflowSettings,
     DBTSettings,
@@ -129,7 +129,7 @@ class TestAirflowSettings:
         af = AirflowSettings(base_url="http://x", username="u", password=SecretStr("p"))
         assert af.auth_manager == "simple"
         assert af.timeout == 30
-        assert af.default_owner == "elt_mcp_server"
+        assert af.default_owner == "teradata_etl_mcp_server"
         assert af.default_retries == 1
         assert af.dag_folder == "/opt/airflow/dags"
 
@@ -510,7 +510,7 @@ _NO_TERADATASQL = patch.dict(sys.modules, {"teradatasql": None})
 class TestValidateConnectivityAirflow:
     """Unit tests for the Airflow branch of Settings.validate_connectivity."""
 
-    _PATCH_CLIENT = "elt_mcp_server.clients.async_airflow_client.AsyncAirflowClient"
+    _PATCH_CLIENT = "teradata_etl_mcp_server.clients.async_airflow_client.AsyncAirflowClient"
 
     def test_airflow_not_configured_is_skipped(self):
         """When base_url is not set, Airflow check is skipped and valid stays True."""

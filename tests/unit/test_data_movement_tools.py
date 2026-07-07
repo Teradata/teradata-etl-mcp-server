@@ -17,8 +17,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import AsyncAirflowAPIError
-from elt_mcp_server.tools.data_movement import register_data_movement_tools
+from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowAPIError
+from teradata_etl_mcp_server.tools.data_movement import register_data_movement_tools
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1936,15 +1936,15 @@ class TestTeradataLoad:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator"
                 ".AirflowTdLoadDAGGenerator.__init__",
                 return_value=None,
             ),
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator"
                 ".AirflowTdLoadDAGGenerator.generate_table_transfer_dag",
             ) as mock_gen_transfer,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
             patch("asyncio.to_thread") as mock_thread,
             patch.dict(
                 "os.environ",
@@ -2100,8 +2100,8 @@ class TestTeradataLoad:
         # The inner helper imports generators and writes files.
         # We mock the generator at the module level.
         with (
-            patch("elt_mcp_server.tools.data_movement.Path.mkdir"),
-            patch("elt_mcp_server.tools.data_movement.Path.write_text"),
+            patch("teradata_etl_mcp_server.tools.data_movement.Path.mkdir"),
+            patch("teradata_etl_mcp_server.tools.data_movement.Path.write_text"),
         ):
             # Mock the AirflowTdLoadDAGGenerator import inside the helper
             mock_gen_class = Mock()
@@ -2189,7 +2189,7 @@ class TestTeradataLoad:
         with (
             patch.object(Path, "exists", return_value=True),
             patch.object(Path, "is_relative_to", return_value=True),
-            patch("elt_mcp_server.utils.csv_analyzer.CSVAnalyzer") as MockCSV,
+            patch("teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer") as MockCSV,
         ):
             MockCSV.return_value.analyze_csv.return_value = self._make_csv_analysis_mock()
             result = await tools["airflow_teradata_load"](
@@ -2221,7 +2221,7 @@ class TestTeradataLoad:
         with (
             patch.object(Path, "exists", return_value=True),
             patch.object(Path, "is_relative_to", return_value=True),
-            patch("elt_mcp_server.utils.csv_analyzer.CSVAnalyzer") as MockCSV,
+            patch("teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer") as MockCSV,
         ):
             MockCSV.return_value.analyze_csv.return_value = self._make_csv_analysis_mock()
             result = await tools["airflow_teradata_load"](
@@ -2255,7 +2255,7 @@ class TestTeradataLoad:
         with (
             patch.object(Path, "exists", return_value=True),
             patch.object(Path, "is_relative_to", return_value=True),
-            patch("elt_mcp_server.utils.csv_analyzer.CSVAnalyzer") as MockCSV,
+            patch("teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer") as MockCSV,
         ):
             MockCSV.return_value.analyze_csv.return_value = self._make_csv_analysis_mock()
             result = await tools["airflow_teradata_load"](
@@ -2497,9 +2497,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2550,9 +2550,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2604,9 +2604,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2671,9 +2671,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2759,9 +2759,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2802,9 +2802,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2854,9 +2854,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2905,9 +2905,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -2942,9 +2942,9 @@ class TestEnsureTeradataConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3051,9 +3051,9 @@ class TestEnsureSSHConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3101,9 +3101,9 @@ class TestEnsureSSHConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3168,9 +3168,9 @@ class TestEnsureSSHConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3231,9 +3231,9 @@ class TestEnsureSSHConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3290,9 +3290,9 @@ class TestEnsureSSHConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3343,9 +3343,9 @@ class TestEnsureSSHConnection:
 
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator"
             ) as MockGen,
-            patch("elt_mcp_server.tools.data_movement.Path") as MockPath,
+            patch("teradata_etl_mcp_server.tools.data_movement.Path") as MockPath,
         ):
             mock_instance = Mock()
             mock_instance.generate_table_transfer_dag.return_value = "# DAG code"
@@ -3416,7 +3416,7 @@ class TestRule9AirbyteManage:
         ``_create_airbyte_source`` helper (which mocks block beyond)."""
         orch, tools = _register()
         with patch(
-            "elt_mcp_server.tools.data_movement._find_or_create_connector",
+            "teradata_etl_mcp_server.tools.data_movement._find_or_create_connector",
             new=AsyncMock(return_value={"success": True, "source": {"sourceId": "s1"}}),
         ):
             result = await tools["airbyte_manage"](
@@ -3455,7 +3455,7 @@ class TestRule9AirbyteManage:
     async def test_create_destination_named_profile_passes_gate(self):
         orch, tools = _register()
         with patch(
-            "elt_mcp_server.tools.data_movement._find_or_create_connector",
+            "teradata_etl_mcp_server.tools.data_movement._find_or_create_connector",
             new=AsyncMock(return_value={"success": True, "destination": {"destinationId": "d1"}}),
         ):
             result = await tools["airbyte_manage"](
@@ -3690,7 +3690,7 @@ class TestTeradataLoadDbtBranching:
         }
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
                 return_value=mock_gen,
             ),
             patch("pathlib.Path.cwd", return_value=tmp_path),
@@ -3735,7 +3735,7 @@ class TestTeradataLoadDbtBranching:
         }
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
                 return_value=mock_gen,
             ),
             patch("pathlib.Path.cwd", return_value=tmp_path),
@@ -3776,7 +3776,7 @@ class TestTeradataLoadDbtBranching:
         }
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
                 return_value=mock_gen,
             ),
             patch.dict("os.environ", _ssh_env),
@@ -3822,7 +3822,7 @@ class TestTeradataLoadDbtBranching:
         }
         with (
             patch(
-                "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
+                "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
                 return_value=mock_gen,
             ),
             patch.dict("os.environ", _ssh_env),

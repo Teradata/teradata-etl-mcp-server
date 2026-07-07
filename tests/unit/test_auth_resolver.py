@@ -14,7 +14,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from elt_mcp_server.auth import (
+from teradata_etl_mcp_server.auth import (
     TeradataAuth,
     build_teradata_auth_from_profile,
     build_teradata_auth_from_settings,

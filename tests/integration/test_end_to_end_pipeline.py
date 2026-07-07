@@ -20,12 +20,12 @@ import asyncio
 import time
 from datetime import datetime
 
-from elt_mcp_server.data_validator import DataValidator
-from elt_mcp_server.lineage import LineageTracker
-from elt_mcp_server.metrics_collector import MetricsCollector
+from teradata_etl_mcp_server.data_validator import DataValidator
+from teradata_etl_mcp_server.lineage import LineageTracker
+from teradata_etl_mcp_server.metrics_collector import MetricsCollector
 
-from elt_mcp_server.clients.airbyte_client import AirbyteClient
-from elt_mcp_server.clients.teradata_client import TeradataClient
+from teradata_etl_mcp_server.clients.airbyte_client import AirbyteClient
+from teradata_etl_mcp_server.clients.teradata_client import TeradataClient
 
 
 @pytest.fixture(scope="module")
@@ -769,7 +769,7 @@ class TestPipelineScheduling:
         setup_dbt_project
     ):
         """Test scheduled pipeline execution."""
-        from elt_mcp_server.scheduler import PipelineScheduler
+        from teradata_etl_mcp_server.scheduler import PipelineScheduler
 
         scheduler = PipelineScheduler()
 

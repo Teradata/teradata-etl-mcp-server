@@ -1,4 +1,4 @@
-"""Configuration management for ELT MCP Server.
+"""Configuration management for Teradata ETL MCP Server.
 
 This module handles all configuration and settings for the unified data pipeline
 MCP server, including connections to Teradata, Airflow, Airbyte, and dbt.
@@ -111,7 +111,7 @@ class AirflowSettings(BaseSettings):
     dag_folder: str = Field(
         default="/opt/airflow/dags", description="Remote DAG folder path on the Airflow server"
     )
-    default_owner: str = Field(default="elt_mcp_server", description="Default DAG owner")
+    default_owner: str = Field(default="teradata_etl_mcp_server", description="Default DAG owner")
     default_pool: str = Field(default="default_pool", description="Default execution pool")
     default_retries: int = Field(default=1, description="Default number of retries")
     default_retry_delay_minutes: int = Field(
@@ -481,7 +481,7 @@ class MCPServerSettings(BaseSettings):
         default="INFO", description="Logging level"
     )
     log_file: Path | None = Field(
-        default=Path("logs/elt-mcp-server.log"),
+        default=Path("logs/teradata-etl-mcp-server.log"),
         description=(
             "Log file path. Relative paths resolve under "
             "Settings.workspace_dir; absolute paths are used as-is."
@@ -493,7 +493,7 @@ class MCPServerSettings(BaseSettings):
     )
 
     metadata_db_path: Path = Field(
-        default=Path(".elt-mcp") / "metadata.db",
+        default=Path(".etl-mcp") / "metadata.db",
         description=(
             "SQLite metadata-store path. Relative paths resolve under "
             "Settings.workspace_dir; absolute paths are used as-is."

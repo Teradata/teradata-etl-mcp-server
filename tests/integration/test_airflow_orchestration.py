@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import AsyncAirflowClient
-from elt_mcp_server.generators.airflow_dag_generator import AirflowDAGGenerator
+from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowClient
+from teradata_etl_mcp_server.generators.airflow_dag_generator import AirflowDAGGenerator
 
 
 def _parse_start_date(date_str: str) -> datetime:

@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from elt_mcp_server.generators.dbt_generator import (
+from teradata_etl_mcp_server.generators.dbt_generator import (
     DBTGenerator,
     DBTGeneratorError,
     _quote_column,
@@ -1003,7 +1003,7 @@ class TestGenerateProfilesYml:
     @pytest.fixture
     def auth(self):
         """Sample :class:`TeradataAuth` for testing."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         return TeradataAuth(
             host="test-teradata-host.example.com",
             port=1025,
@@ -1088,7 +1088,7 @@ class TestGenerateProfilesYml:
     def test_generate_profiles_yml_mechanism_fields_present(self, generator):
         """Every mechanism-specific YAML key is present so any logmech can
         take effect at dbt runtime without rewriting the file."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         minimal_auth = TeradataAuth(
             host="localhost", port=1025, database="mydb",
             mechanism="TD2", username="u", password="p",
@@ -1140,7 +1140,7 @@ class TestCreateProjectStructureWithProfiles:
     @pytest.fixture
     def auth(self):
         """Sample :class:`TeradataAuth` for testing."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         return TeradataAuth(
             host="test-teradata-host.example.com",
             port=1025,
@@ -1525,7 +1525,7 @@ class TestTeradataIncrementalModels:
 
     def test_incremental_model_rejects_insert_overwrite(self, generator):
         """Test that insert_overwrite strategy is rejected for Teradata."""
-        from elt_mcp_server.generators.dbt_generator import DBTGeneratorError
+        from teradata_etl_mcp_server.generators.dbt_generator import DBTGeneratorError
 
         with pytest.raises(DBTGeneratorError) as exc_info:
             generator.generate_incremental_model(
@@ -1781,7 +1781,7 @@ class TestMultiTargetProfiles:
         return DBTGenerator(project_dir)
 
     def test_multi_target_profiles(self, generator):
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         result = generator.generate_multi_target_profiles_yml(
             profile_name="my_project",
             targets=[
@@ -1811,7 +1811,7 @@ class TestMultiTargetProfiles:
         assert parsed["my_project"]["outputs"]["prod"]["threads"] == 8
 
     def test_multi_target_profiles_empty_targets(self, generator):
-        from elt_mcp_server.generators.dbt_generator import DBTGeneratorError
+        from teradata_etl_mcp_server.generators.dbt_generator import DBTGeneratorError
 
         with pytest.raises(DBTGeneratorError):
             generator.generate_multi_target_profiles_yml(
@@ -2219,7 +2219,7 @@ class TestDotenvScaffolding:
 
     @pytest.fixture
     def td2_auth(self):
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         return TeradataAuth(
             host="td.example.com",
             port=1025,
@@ -2231,7 +2231,7 @@ class TestDotenvScaffolding:
 
     @pytest.fixture
     def jwt_auth(self):
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         return TeradataAuth(
             host="td.example.com",
             port=1025,

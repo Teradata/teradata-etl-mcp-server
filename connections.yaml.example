@@ -1,4 +1,4 @@
-# connections.yaml — Connection profiles for the ELT MCP Server
+# connections.yaml — Connection profiles for the Teradata ETL MCP Server
 #
 # Profiles represent named connection credentials for data systems (Teradata, Postgres,
 # Snowflake, etc.). Each profile is independent: credentials come from connections.yaml
@@ -11,7 +11,7 @@
 # Credentials never reach the LLM — only profile names do.
 #
 # Set the path to this file via the VS Code Setup Wizard
-# (ELT MCP Server → Setup Wizard → "connections.yaml").
+# (Teradata ETL MCP Server → Setup Wizard → "connections.yaml").
 # After saving, click "Reload Configuration" so the server picks it up.
 #
 # Use ${ENV_VAR_NAME} to reference values from .env or your environment for secrets.

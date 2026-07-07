@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, Mock, MagicMock, patch
 import pytest
 from pydantic import SecretStr
 
-from elt_mcp_server.config import (
+from teradata_etl_mcp_server.config import (
     AirbyteSettings,
     AirflowSettings,
     DBTSettings,
@@ -15,7 +15,7 @@ from elt_mcp_server.config import (
     Settings,
     TeradataSettings,
 )
-from elt_mcp_server.orchestrator import PipelineOrchestrator
+from teradata_etl_mcp_server.orchestrator import PipelineOrchestrator
 
 
 class TestOrchestrator:
@@ -129,7 +129,7 @@ class TestOrchestrator:
     ) -> None:
         """The factory builds a fresh DBTGenerator pinned at the supplied
         sub-project path — independent of the cached ``dbt_generator``."""
-        from elt_mcp_server.generators.dbt_generator import DBTGenerator
+        from teradata_etl_mcp_server.generators.dbt_generator import DBTGenerator
 
         sub = tmp_path / "dbt_analytics"
         gen = orchestrator.dbt_generator_for(sub)
@@ -154,7 +154,7 @@ class TestOrchestrator:
         """The factory builds a fresh DBTClient pinned at the supplied
         sub-project; profiles_dir defaults to project_dir so per-sub-project
         profiles.yml is found by dbt CLI."""
-        from elt_mcp_server.clients.dbt_client import DBTClient
+        from teradata_etl_mcp_server.clients.dbt_client import DBTClient
 
         sub = self._make_minimal_dbt_subproject(tmp_path / "dbt_analytics")
         client = orchestrator.dbt_client_for(sub)
@@ -178,7 +178,7 @@ class TestOrchestrator:
     ) -> None:
         """Setting ``orchestrator.dbt_generator`` swaps the cached instance
         — used by tools that resolve a sub-project at call time."""
-        from elt_mcp_server.generators.dbt_generator import DBTGenerator
+        from teradata_etl_mcp_server.generators.dbt_generator import DBTGenerator
 
         sub = tmp_path / "dbt_analytics"
         replacement = DBTGenerator(project_dir=sub)
@@ -196,7 +196,7 @@ class TestOrchestrator:
     def test_dbt_client_setter_pins_to_per_call_instance(
         self, orchestrator: PipelineOrchestrator, tmp_path: Path
     ) -> None:
-        from elt_mcp_server.clients.dbt_client import DBTClient
+        from teradata_etl_mcp_server.clients.dbt_client import DBTClient
 
         sub = self._make_minimal_dbt_subproject(tmp_path / "dbt_analytics")
         replacement = DBTClient(
@@ -301,7 +301,9 @@ class TestAsyncGetAirflowHealth:
     @pytest.mark.asyncio
     async def test_async_get_airflow_health_connected(self, orchestrator: PipelineOrchestrator):
         """Test health check when Airflow is connected with all recommended providers."""
-        from elt_mcp_server.clients.async_airflow_client import RECOMMENDED_AIRFLOW_PROVIDERS
+        from teradata_etl_mcp_server.clients.async_airflow_client import (
+            RECOMMENDED_AIRFLOW_PROVIDERS,
+        )
 
         orchestrator._async_airflow_client.test_connection = AsyncMock(
             return_value={"connected": True, "url": "http://localhost:8080", "version": "2.5.0"}
@@ -400,7 +402,7 @@ class TestOrchestratorWorkflowProperty:
 
     def test_workflow_orchestrator_lazy_creation(self, settings: Settings):
         """Test workflow_orchestrator property creates orchestrator lazily."""
-        from elt_mcp_server.workflow import WorkflowOrchestratorProtocol
+        from teradata_etl_mcp_server.workflow import WorkflowOrchestratorProtocol
         from tests.unit.mock_client_factory import MockClientFactory
 
         mock_orchestrator = Mock(spec=WorkflowOrchestratorProtocol)
@@ -423,7 +425,7 @@ class TestOrchestratorWorkflowProperty:
 
     def test_workflow_orchestrator_cached(self, settings: Settings):
         """Test workflow_orchestrator is cached after first access."""
-        from elt_mcp_server.workflow import WorkflowOrchestratorProtocol
+        from teradata_etl_mcp_server.workflow import WorkflowOrchestratorProtocol
         from tests.unit.mock_client_factory import MockClientFactory
 
         mock_orchestrator = Mock(spec=WorkflowOrchestratorProtocol)

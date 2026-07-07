@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from elt_mcp_server.tools.dbt_management import (
+from teradata_etl_mcp_server.tools.dbt_management import (
     _autocorrect_columns,
     _autocorrect_single_column,
     register_dbt_tools,
@@ -905,12 +905,12 @@ class TestDbtInfo:
     @pytest.mark.asyncio
     async def test_check_installation_success(self, tools):
         with patch(
-            "elt_mcp_server.tools.dbt_management.DBTClient",
+            "teradata_etl_mcp_server.tools.dbt_management.DBTClient",
             create=True,
         ) as _:
             # The actual import is inside the function; patch the module-level import path
             with patch(
-                "elt_mcp_server.clients.dbt_client.DBTClient.check_installation",
+                "teradata_etl_mcp_server.clients.dbt_client.DBTClient.check_installation",
                 return_value={
                     "installed": True,
                     "dbt_version": "1.7.4",
@@ -927,7 +927,7 @@ class TestDbtInfo:
     @pytest.mark.asyncio
     async def test_check_installation_not_installed(self, tools):
         with patch(
-            "elt_mcp_server.clients.dbt_client.DBTClient.check_installation",
+            "teradata_etl_mcp_server.clients.dbt_client.DBTClient.check_installation",
             return_value={
                 "installed": False,
                 "dbt_version": None,
@@ -943,7 +943,7 @@ class TestDbtInfo:
     @pytest.mark.asyncio
     async def test_check_installation_dbt_without_teradata(self, tools):
         with patch(
-            "elt_mcp_server.clients.dbt_client.DBTClient.check_installation",
+            "teradata_etl_mcp_server.clients.dbt_client.DBTClient.check_installation",
             return_value={
                 "installed": True,
                 "dbt_version": "1.7.4",
@@ -3815,7 +3815,7 @@ class TestCreateFromCsv:
     def _mock_csv_analyzer(self):
         """Patch CSVAnalyzer to avoid real file parsing."""
         with patch(
-            "elt_mcp_server.utils.csv_analyzer.CSVAnalyzer",
+            "teradata_etl_mcp_server.utils.csv_analyzer.CSVAnalyzer",
             autospec=False,
         ) as mock_cls:
             mock_analyzer = MagicMock()
@@ -4000,7 +4000,7 @@ class TestCreateFromCsv:
         mock_orchestrator.settings.pipeline.dags_output_dir = "/tmp/dags"
 
         with patch(
-            "elt_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
+            "teradata_etl_mcp_server.generators.airflow_tdload_dag_generator.AirflowTdLoadDAGGenerator",
         ) as mock_dag_gen_cls:
             mock_dag_gen = MagicMock()
             mock_dag_gen.generate_file_loading_dag = Mock(return_value="# dag code")
@@ -4345,7 +4345,7 @@ class TestRuntimeHistory:
     async def test_runtime_estimate_returns_stats(self, tools, mock_orchestrator):
         from datetime import datetime, timezone
 
-        from elt_mcp_server.storage.metadata_store import MetadataEntry
+        from teradata_etl_mcp_server.storage.metadata_store import MetadataEntry
 
         now = datetime.now(timezone.utc)
         index_entry = MetadataEntry(
@@ -4392,7 +4392,7 @@ class TestRuntimeHistory:
     async def test_runtime_estimate_single_model(self, tools, mock_orchestrator):
         from datetime import datetime, timezone
 
-        from elt_mcp_server.storage.metadata_store import MetadataEntry
+        from teradata_etl_mcp_server.storage.metadata_store import MetadataEntry
 
         now = datetime.now(timezone.utc)
         index_entry = MetadataEntry(
@@ -4444,7 +4444,7 @@ class TestRuntimeHistory:
     async def test_runtime_history_capped(self, tools, mock_orchestrator):
         from datetime import datetime, timezone
 
-        from elt_mcp_server.storage.metadata_store import MetadataEntry
+        from teradata_etl_mcp_server.storage.metadata_store import MetadataEntry
 
         now = datetime.now(timezone.utc)
         existing_history = [
@@ -4491,7 +4491,7 @@ class TestRuntimeHistory:
     async def test_clear_runtime_history(self, tools, mock_orchestrator):
         from datetime import datetime, timezone
 
-        from elt_mcp_server.storage.metadata_store import MetadataEntry
+        from teradata_etl_mcp_server.storage.metadata_store import MetadataEntry
 
         now = datetime.now(timezone.utc)
         index_entry = MetadataEntry(
@@ -4651,31 +4651,31 @@ class TestResolveTeradataIdentity:
         return orch
 
     def test_named_profile_returns_name_verbatim(self):
-        from elt_mcp_server.tools.dbt_management import _resolve_teradata_identity
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_teradata_identity
 
         orch = self._make_orch(host="td-prod.example.com")
         assert _resolve_teradata_identity(orch, "td_prod") == "td_prod"
 
     def test_wizard_default_returns_wizard_host_slug(self):
-        from elt_mcp_server.tools.dbt_management import _resolve_teradata_identity
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_teradata_identity
 
         orch = self._make_orch(host="TD-Prod.Example.com:1025")
         assert _resolve_teradata_identity(orch, None) == "wizard:td_prod_example_com_1025"
 
     def test_wizard_default_empty_host_returns_none(self):
-        from elt_mcp_server.tools.dbt_management import _resolve_teradata_identity
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_teradata_identity
 
         orch = self._make_orch(host="")
         assert _resolve_teradata_identity(orch, None) is None
 
     def test_wizard_default_whitespace_host_returns_none(self):
-        from elt_mcp_server.tools.dbt_management import _resolve_teradata_identity
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_teradata_identity
 
         orch = self._make_orch(host="   ")
         assert _resolve_teradata_identity(orch, None) is None
 
     def test_wizard_sentinel_treated_as_default(self):
-        from elt_mcp_server.tools.dbt_management import _resolve_teradata_identity
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_teradata_identity
 
         orch = self._make_orch(host="td-prod.example.com")
         # "wizard" / "default" / "" are not real profiles → host-keyed identity.
@@ -4697,27 +4697,27 @@ class TestResolveDbtSubproject:
         return sub
 
     def test_legacy_layout_at_parent_root_returns_legacy_layout(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         (tmp_path / "dbt_project.yml").write_text("name: legacy\nprofile: legacy\n")
         result = _resolve_dbt_subproject(tmp_path, identity="td_prod", project_name=None)
         assert result.status == "legacy_layout"
 
     def test_no_identity_returns_no_identity(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         result = _resolve_dbt_subproject(tmp_path, identity=None, project_name=None)
         assert result.status == "no_identity"
 
     def test_no_subprojects_no_project_name_returns_needs_name(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         result = _resolve_dbt_subproject(tmp_path, identity="td_prod", project_name=None)
         assert result.status == "needs_name"
         assert result.identity == "td_prod"
 
     def test_existing_subproject_resolved_by_profile_field(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         sub = self._make_subproject(tmp_path, "analytics", "td_prod")
         result = _resolve_dbt_subproject(tmp_path, identity="td_prod", project_name=None)
@@ -4726,7 +4726,7 @@ class TestResolveDbtSubproject:
         assert result.identity == "td_prod"
 
     def test_two_subprojects_same_identity_returns_ambiguous(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         sub_a = self._make_subproject(tmp_path, "analytics", "td_prod")
         sub_b = self._make_subproject(tmp_path, "sales", "td_prod")
@@ -4735,7 +4735,7 @@ class TestResolveDbtSubproject:
         assert set(result.matches) == {sub_a, sub_b}
 
     def test_subprojects_different_identities_only_matching_returned(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         self._make_subproject(tmp_path, "analytics", "td_prod")
         sub_staging = self._make_subproject(tmp_path, "staging_lake", "td_staging")
@@ -4747,7 +4747,7 @@ class TestResolveDbtSubproject:
         """Headline test: wizard host change produces a different synthetic
         identity, the lookup misses, and the user is prompted for a new
         project name. No silent collision."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         # Project bound to "wizard:td_dev_example_com"
         self._make_subproject(tmp_path, "dev_lab", "wizard:td_dev_example_com")
@@ -4759,7 +4759,7 @@ class TestResolveDbtSubproject:
         assert result.status == "needs_name"
 
     def test_explicit_project_name_target_missing_returns_will_create(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         result = _resolve_dbt_subproject(
             tmp_path, identity="td_prod", project_name="warehouse"
@@ -4769,7 +4769,7 @@ class TestResolveDbtSubproject:
         assert result.identity == "td_prod"
 
     def test_explicit_project_name_existing_matching_returns_existing(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         sub = self._make_subproject(tmp_path, "warehouse", "td_prod")
         result = _resolve_dbt_subproject(
@@ -4779,7 +4779,7 @@ class TestResolveDbtSubproject:
         assert result.project_dir == sub
 
     def test_explicit_project_name_existing_different_identity_returns_conflict(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         self._make_subproject(tmp_path, "warehouse", "td_staging")
         result = _resolve_dbt_subproject(
@@ -4789,7 +4789,7 @@ class TestResolveDbtSubproject:
         assert result.existing_identity == "td_staging"
 
     def test_project_name_slugified(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         result = _resolve_dbt_subproject(
             tmp_path, identity="td_prod", project_name="My Warehouse-Prod!"
@@ -4801,7 +4801,7 @@ class TestResolveDbtSubproject:
         """``project_name="dbt_test"`` and ``project_name="test"`` both
         produce ``dbt_test/`` — the leading ``dbt_`` is stripped before
         the prefix is added so we don't get ``dbt_dbt_test/``."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         with_prefix = _resolve_dbt_subproject(
             tmp_path, identity="td_prod", project_name="dbt_test"
@@ -4816,7 +4816,7 @@ class TestResolveDbtSubproject:
     def test_empty_slug_project_name_returns_conflict(self, tmp_path):
         """Slugifying ``"---"`` yields empty — surface as conflict so the
         caller's error message points at the bad input."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         result = _resolve_dbt_subproject(
             tmp_path, identity="td_prod", project_name="---"
@@ -4825,7 +4825,7 @@ class TestResolveDbtSubproject:
 
     def test_subproject_without_dbt_project_yml_skipped(self, tmp_path):
         """A bare ``dbt_orphan/`` directory with no manifest is ignored."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         (tmp_path / "dbt_orphan").mkdir()
         result = _resolve_dbt_subproject(tmp_path, identity="td_prod", project_name=None)
@@ -4833,7 +4833,7 @@ class TestResolveDbtSubproject:
 
     def test_non_dbt_prefixed_dirs_skipped(self, tmp_path):
         """Only ``dbt_*`` dirs are scanned for manifests."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         (tmp_path / "noise").mkdir()
         (tmp_path / "noise" / "dbt_project.yml").write_text("profile: td_prod\n")
@@ -4841,7 +4841,7 @@ class TestResolveDbtSubproject:
         assert result.status == "needs_name"
 
     def test_parent_does_not_exist_returns_needs_name(self, tmp_path):
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         missing = tmp_path / "does_not_exist"
         result = _resolve_dbt_subproject(missing, identity="td_prod", project_name=None)
@@ -4852,7 +4852,7 @@ class TestResolveDbtSubproject:
     def test_collision_when_project_name_equals_project(self, tmp_path):
         """``project_name='project'`` slugifies to a sub-project named
         ``dbt_project`` — same as the parent container's basename. Reject."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         parent = tmp_path / "dbt_project"
         parent.mkdir()
@@ -4865,7 +4865,7 @@ class TestResolveDbtSubproject:
     def test_collision_when_project_name_equals_dbt_project(self, tmp_path):
         """``project_name='dbt_project'`` → leading ``dbt_`` stripped →
         slug='project' → final dir 'dbt_project' which collides."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         parent = tmp_path / "dbt_project"
         parent.mkdir()
@@ -4878,7 +4878,7 @@ class TestResolveDbtSubproject:
     def test_collision_check_uses_parent_basename_not_hardcoded(self, tmp_path):
         """If the parent is ``my_dbt_root/`` (uncommon but valid), only
         ``project_name='my_dbt_root'`` collides — not 'project'."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         parent = tmp_path / "dbt_my_dbt_root"  # parent is ``dbt_my_dbt_root``
         parent.mkdir()
@@ -4896,7 +4896,7 @@ class TestResolveDbtSubproject:
 
     def test_normal_name_not_flagged_as_collision(self, tmp_path):
         """Non-colliding names like 'analytics' continue to ``will_create``."""
-        from elt_mcp_server.tools.dbt_management import _resolve_dbt_subproject
+        from teradata_etl_mcp_server.tools.dbt_management import _resolve_dbt_subproject
 
         parent = tmp_path / "dbt_project"
         parent.mkdir()
@@ -4915,7 +4915,7 @@ class TestSuggestSafeProjectNames:
     def test_workspace_basename_first_when_distinct(self, tmp_path):
         from unittest.mock import Mock
 
-        from elt_mcp_server.tools.dbt_management import _suggest_safe_project_names
+        from teradata_etl_mcp_server.tools.dbt_management import _suggest_safe_project_names
 
         orch = Mock()
         orch.settings.workspace_dir = str(tmp_path / "teradata-etl-mcp-workspace")
@@ -4928,7 +4928,7 @@ class TestSuggestSafeProjectNames:
         don't suggest it — it's a reserved name."""
         from unittest.mock import Mock
 
-        from elt_mcp_server.tools.dbt_management import _suggest_safe_project_names
+        from teradata_etl_mcp_server.tools.dbt_management import _suggest_safe_project_names
 
         orch = Mock()
         orch.settings.workspace_dir = str(tmp_path / "dbt_project")
@@ -4939,7 +4939,7 @@ class TestSuggestSafeProjectNames:
     def test_rejected_name_seeds_third_suggestion(self, tmp_path):
         from unittest.mock import Mock
 
-        from elt_mcp_server.tools.dbt_management import _suggest_safe_project_names
+        from teradata_etl_mcp_server.tools.dbt_management import _suggest_safe_project_names
 
         orch = Mock()
         orch.settings.workspace_dir = str(tmp_path / "teradata-etl-mcp-workspace")
@@ -4949,7 +4949,7 @@ class TestSuggestSafeProjectNames:
     def test_max_three_suggestions(self, tmp_path):
         from unittest.mock import Mock
 
-        from elt_mcp_server.tools.dbt_management import _suggest_safe_project_names
+        from teradata_etl_mcp_server.tools.dbt_management import _suggest_safe_project_names
 
         orch = Mock()
         orch.settings.workspace_dir = str(tmp_path / "myws")
@@ -5306,7 +5306,7 @@ class TestDbtProjectRefreshEnv:
         resolver, refresh_env's response must contain NONE of the
         sentinels — only the env-var KEY NAMES."""
         _stage_sentinel_profile(mock_orchestrator)
-        with caplog.at_level("DEBUG", logger="elt_mcp_server"):
+        with caplog.at_level("DEBUG", logger="teradata_etl_mcp_server"):
             result = await tools["dbt_project"](
                 action="refresh_env",
                 project_name="default",
@@ -5427,7 +5427,7 @@ class TestDbtProjectCreateStructureNoLeak:
         _stage_sentinel_profile(mock_orchestrator)
         # Use a fresh project name so the resolver returns ``will_create``
         # rather than ``existing``.
-        with caplog.at_level("DEBUG", logger="elt_mcp_server"):
+        with caplog.at_level("DEBUG", logger="teradata_etl_mcp_server"):
             result = await tools["dbt_project"](
                 action="create_structure",
                 project_name="leakcheck",

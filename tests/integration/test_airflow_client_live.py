@@ -14,7 +14,7 @@ import socket
 
 import pytest
 
-from elt_mcp_server.clients.async_airflow_client import AsyncAirflowClient
+from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowClient
 
 # Attempt to load .env automatically for local runs
 try:  # pragma: no cover - convenience only

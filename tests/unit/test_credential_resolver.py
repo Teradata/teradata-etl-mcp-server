@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-from elt_mcp_server.credential_resolver import CredentialResolver, ProfileSummary
+from teradata_etl_mcp_server.credential_resolver import CredentialResolver, ProfileSummary
 
 
 @pytest.fixture

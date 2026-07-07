@@ -1,7 +1,7 @@
 """FastMCP server setup and tool registration.
 
 This module initializes the FastMCP application, registers all tools,
-and manages the lifecycle of the ELT MCP Server.
+and manages the lifecycle of the Teradata ETL MCP Server.
 """
 
 import asyncio
@@ -16,6 +16,7 @@ from fastmcp import FastMCP
 from fastmcp.tools.tool import Tool
 from mcp.types import ToolAnnotations
 
+from . import __version__
 from .config import Settings, load_settings
 from .orchestrator import PipelineOrchestrator
 
@@ -32,12 +33,12 @@ from .tools import (
 from .utils.audit_logger import AuditLogger
 
 
-class ELTMCPServer:
-    """ELT MCP Server application manager."""
+class TeradataETLMCPServer:
+    """Teradata ETL MCP Server application manager."""
 
     def __init__(self, settings: Settings | None = None):
         """
-        Initialize the ELT MCP Server.
+        Initialize the Teradata ETL MCP Server.
 
         Args:
             settings: Optional settings instance (loads from env if not provided)
@@ -55,7 +56,7 @@ class ELTMCPServer:
     def _setup_logging(self) -> logging.Logger:
         """Configure logging based on settings."""
         # Create logger
-        logger = logging.getLogger("elt_mcp_server")
+        logger = logging.getLogger("teradata_etl_mcp_server")
         logger.setLevel(self.settings.mcp.log_level)
 
         # Avoid duplicate handlers
@@ -387,7 +388,7 @@ class ELTMCPServer:
         Raises:
             RuntimeError: If startup validation fails and fail_fast_on_startup is True
         """
-        self.logger.info("Creating ELT MCP Server application...")
+        self.logger.info("Creating Teradata ETL MCP Server application...")
         self.logger.info("Environment: %s", self.settings.environment)
         self.logger.info("Transport: stdio")
 
@@ -399,8 +400,8 @@ class ELTMCPServer:
 
         # Create FastMCP app
         app = FastMCP(
-            name="elt-mcp-server",
-            version="0.1.0",
+            name="teradata-etl-mcp-server",
+            version=__version__,
             instructions=(
                 "MANDATORY: dbt file and command operations\n"
                 "  Never read dbt project files directly (dbt_project.yml, manifest.json,\n"
@@ -461,7 +462,7 @@ class ELTMCPServer:
                 "/ Rule-5 missing-profile / SSH-key-missing / ``no_identity`` / similar), DO NOT "
                 "create or edit those files yourself and DO NOT fabricate placeholder "
                 "credentials. ASK THE USER to either:\n"
-                "    1. Open the Setup Wizard (VS Code: ELT MCP Server → Setup Wizard) and fill "
+                "    1. Open the Setup Wizard (VS Code: Teradata ETL MCP Server → Setup Wizard) and fill "
                 "the missing field, then click Save and Reload.\n"
                 "    2. OR add/edit a named profile in their ``connections.yaml`` (point them at "
                 "``connections.yaml.example`` if needed) and call "
@@ -611,7 +612,7 @@ class ELTMCPServer:
             atexit.register(_sync_cleanup)
             self._cleanup_registered = True
 
-        self.logger.info("ELT MCP Server application created successfully")
+        self.logger.info("Teradata ETL MCP Server application created successfully")
 
         return app
 
@@ -648,7 +649,7 @@ def create_app(settings: Settings | None = None) -> FastMCP:
     """
     Factory function to create a configured FastMCP application.
 
-    This is the main entry point for creating the ELT MCP Server.
+    This is the main entry point for creating the Teradata ETL MCP Server.
 
     Args:
         settings: Optional settings instance
@@ -662,15 +663,15 @@ def create_app(settings: Settings | None = None) -> FastMCP:
         >>> import asyncio
         >>> asyncio.run(app.run_stdio_async())
     """
-    server = ELTMCPServer(settings)
+    server = TeradataETLMCPServer(settings)
     return server.create_app()
 
 
 # Global server instance for lifecycle management
-_server_instance: ELTMCPServer | None = None
+_server_instance: TeradataETLMCPServer | None = None
 
 
-def get_server_instance() -> ELTMCPServer | None:
+def get_server_instance() -> TeradataETLMCPServer | None:
     """
     Get the global server instance.
 
@@ -680,7 +681,7 @@ def get_server_instance() -> ELTMCPServer | None:
     return _server_instance
 
 
-def set_server_instance(server: ELTMCPServer):
+def set_server_instance(server: TeradataETLMCPServer):
     """
     Set the global server instance.
 
@@ -705,14 +706,14 @@ async def lifespan(app: FastMCP):  # noqa: ARG001
 
     # Startup
     if server:
-        server.logger.info("Starting ELT MCP Server...")
+        server.logger.info("Starting Teradata ETL MCP Server...")
         server.logger.info("Server ready on stdio transport")
 
     yield
 
     # Shutdown
     if server:
-        server.logger.info("Shutting down ELT MCP Server...")
+        server.logger.info("Shutting down Teradata ETL MCP Server...")
         await server.cleanup()
         server.logger.info("Server shutdown complete")
 
@@ -727,7 +728,7 @@ def create_app_with_lifespan(settings: Settings | None = None) -> FastMCP:
     Returns:
         Configured FastMCP application with lifespan
     """
-    server = ELTMCPServer(settings)
+    server = TeradataETLMCPServer(settings)
     set_server_instance(server)
     app = server.create_app()
 
@@ -770,12 +771,11 @@ def get_logger() -> logging.Logger:
     server = get_server_instance()
     if server:
         return server.logger
-    return logging.getLogger("elt_mcp_server")
+    return logging.getLogger("teradata_etl_mcp_server")
 
 
-# Version info
-__version__ = "0.1.0"
-__author__ = "ELT MCP Server Team"
+# Version info (__version__ is imported from the package at the top of this module)
+__author__ = "Teradata ETL MCP Server Team"
 __description__ = (
     "Unified data pipeline orchestration server integrating "
     "Teradata, dbt, Airbyte, and Apache Airflow"

@@ -1,4 +1,4 @@
-"""Unit tests for ELT MCP Server."""
+"""Unit tests for Teradata ETL MCP Server."""
 
 import asyncio
 import logging
@@ -8,8 +8,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from mcp.types import ToolAnnotations
 
-from elt_mcp_server.server import (
-    ELTMCPServer,
+from teradata_etl_mcp_server import __version__ as package_version
+from teradata_etl_mcp_server.server import (
+    TeradataETLMCPServer,
     __version__,
     create_app,
     create_app_with_lifespan,
@@ -36,7 +37,7 @@ def _registered_tools(app):
 
 
 def _make_mock_settings():
-    """Build a lightweight mock Settings that satisfies ELTMCPServer."""
+    """Build a lightweight mock Settings that satisfies TeradataETLMCPServer."""
     settings = MagicMock()
     settings.environment = "development"
 
@@ -80,18 +81,18 @@ def _make_mock_orchestrator():
 
 
 # ---------------------------------------------------------------------------
-# Tests: ELTMCPServer Initialization
+# Tests: TeradataETLMCPServer Initialization
 # ---------------------------------------------------------------------------
 
 
-class TestELTMCPServerInit:
-    """Tests for ELTMCPServer.__init__ and attribute setup."""
+class TestTeradataETLMCPServerInit:
+    """Tests for TeradataETLMCPServer.__init__ and attribute setup."""
 
     @patch.dict(os.environ, {}, clear=True)
     def test_init_with_provided_settings(self):
         """Server should store the provided settings object."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         assert server.settings is settings
         assert server.app is None
@@ -101,17 +102,17 @@ class TestELTMCPServerInit:
     def test_init_creates_logger(self):
         """Server should set up a logger on init."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         assert isinstance(server.logger, logging.Logger)
-        assert server.logger.name == "elt_mcp_server"
+        assert server.logger.name == "teradata_etl_mcp_server"
 
     @patch.dict(os.environ, {}, clear=True)
     def test_init_loads_settings_when_none(self):
         """When no settings are passed, load_settings() should be called."""
-        with patch("elt_mcp_server.server.load_settings") as mock_load:
+        with patch("teradata_etl_mcp_server.server.load_settings") as mock_load:
             mock_load.return_value = _make_mock_settings()
-            server = ELTMCPServer(settings=None)
+            server = TeradataETLMCPServer(settings=None)
 
             mock_load.assert_called_once()
             assert server.settings is mock_load.return_value
@@ -123,14 +124,14 @@ class TestELTMCPServerInit:
 
 
 class TestSetupLogging:
-    """Tests for ELTMCPServer._setup_logging."""
+    """Tests for TeradataETLMCPServer._setup_logging."""
 
     @patch.dict(os.environ, {}, clear=True)
     def test_logger_level_matches_settings(self):
         """Logger level should match the configured log_level."""
         settings = _make_mock_settings()
         settings.mcp.log_level = "DEBUG"
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         assert server.logger.level == logging.DEBUG
 
@@ -138,7 +139,7 @@ class TestSetupLogging:
     def test_no_duplicate_handlers(self):
         """Calling _setup_logging twice should not duplicate handlers."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         handler_count_before = len(server.logger.handlers)
         server._setup_logging()
@@ -153,7 +154,7 @@ class TestSetupLogging:
 
 
 class TestGetToolAnnotations:
-    """Tests for ELTMCPServer._get_tool_annotations (static method)."""
+    """Tests for TeradataETLMCPServer._get_tool_annotations (static method)."""
 
     def test_read_only_tool(self):
         """Read-only tools should have readOnlyHint=True, destructiveHint=False."""
@@ -164,7 +165,7 @@ class TestGetToolAnnotations:
             "teradata_discover", "teradata_analyze",
             "dag_monitor",
         ]:
-            ann = ELTMCPServer._get_tool_annotations(name)
+            ann = TeradataETLMCPServer._get_tool_annotations(name)
             assert isinstance(ann, ToolAnnotations), f"{name}: wrong type"
             assert ann.readOnlyHint is True, f"{name}: should be read-only"
             assert ann.destructiveHint is False, f"{name}: should not be destructive"
@@ -173,14 +174,14 @@ class TestGetToolAnnotations:
     def test_destructive_tool(self):
         """Destructive tools should have destructiveHint=True."""
         for name in ["pipeline_control", "airbyte_manage"]:
-            ann = ELTMCPServer._get_tool_annotations(name)
+            ann = TeradataETLMCPServer._get_tool_annotations(name)
             assert ann.readOnlyHint is False, f"{name}: should not be read-only"
             assert ann.destructiveHint is True, f"{name}: should be destructive"
             assert ann.idempotentHint is False, f"{name}: should not be idempotent"
 
     def test_default_tool(self):
         """Unrecognised / additive tools get the default classification."""
-        ann = ELTMCPServer._get_tool_annotations("dbt_execute")
+        ann = TeradataETLMCPServer._get_tool_annotations("dbt_execute")
         assert ann.readOnlyHint is False
         assert ann.destructiveHint is False
         assert ann.idempotentHint is False
@@ -191,7 +192,7 @@ class TestGetToolAnnotations:
         for name in [
             "pipeline_status", "pipeline_control", "dbt_execute", "some_unknown_tool",
         ]:
-            ann = ELTMCPServer._get_tool_annotations(name)
+            ann = TeradataETLMCPServer._get_tool_annotations(name)
             assert ann.openWorldHint is True
 
 
@@ -201,30 +202,30 @@ class TestGetToolAnnotations:
 
 
 class TestCreateApp:
-    """Tests for ELTMCPServer.create_app."""
+    """Tests for TeradataETLMCPServer.create_app."""
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_returns_fastmcp(self, mock_orch_cls):
         """create_app should return a FastMCP instance."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         from fastmcp import FastMCP
         assert isinstance(app, FastMCP)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_instructions_include_config_ownership_block(self, mock_orch_cls):
         """The server's ``instructions=`` block must contain the
         CONFIGURATION FILE OWNERSHIP section so agents are told
         explicitly not to write or read credential-bearing files."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
         instructions = app.instructions or ""
         assert "CONFIGURATION FILE OWNERSHIP" in instructions
@@ -246,7 +247,7 @@ class TestCreateApp:
         assert "provision_teradata_variables" not in instructions
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_instructions_describe_next_steps_template(self, mock_orch_cls):
         """The server's ``instructions=`` block must document the
         ``next_steps`` Markdown-prose template so agents know how to
@@ -254,7 +255,7 @@ class TestCreateApp:
         responses."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
         instructions = app.instructions or ""
         # Section header present
@@ -269,42 +270,42 @@ class TestCreateApp:
         assert "Do NOT auto-execute" in instructions
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_stores_app_and_orchestrator(self, mock_orch_cls):
         """After create_app, server.app and server.orchestrator should be set."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         assert server.app is app
         assert server.orchestrator is mock_orch_cls.return_value
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_sets_state(self, mock_orch_cls):
         """The FastMCP app.state should contain orchestrator and settings."""
         mock_orch = _make_mock_orchestrator()
         mock_orch_cls.return_value = mock_orch
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         assert app.state["orchestrator"] is mock_orch
         assert app.state["settings"] is settings
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_registers_atexit_once(self, mock_orch_cls):
         """atexit cleanup should only be registered once, even if create_app is called twice."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
-        with patch("elt_mcp_server.server.atexit") as mock_atexit:
+        with patch("teradata_etl_mcp_server.server.atexit") as mock_atexit:
             server.create_app()
             assert mock_atexit.register.call_count == 1
 
@@ -313,7 +314,7 @@ class TestCreateApp:
             assert mock_atexit.register.call_count == 1
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_raises_on_failed_validation(self, mock_orch_cls):
         """If startup validation fails with fail_fast, create_app should raise RuntimeError."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
@@ -328,7 +329,7 @@ class TestCreateApp:
             "errors": ["Teradata unreachable"],
         }
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         with pytest.raises(RuntimeError, match="Startup validation failed"):
             server.create_app()
@@ -376,13 +377,13 @@ class TestToolRegistration:
     }
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_all_22_tools_registered(self, mock_orch_cls):
         """create_app should register all 22 router tools."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
@@ -391,26 +392,26 @@ class TestToolRegistration:
         )
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_tool_count_is_22(self, mock_orch_cls):
         """Exactly 22 tools should be registered."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_count = len(_registered_tools(app))
         assert registered_count == 22, f"Expected 22 tools, got {registered_count}"
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_pipeline_management_tools_registered(self, mock_orch_cls):
         """Pipeline management module should register its 5 tools."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
@@ -421,13 +422,13 @@ class TestToolRegistration:
         assert expected.issubset(registered_names)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_data_movement_tools_registered(self, mock_orch_cls):
         """Data movement module should register its 5 tools."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
@@ -438,13 +439,13 @@ class TestToolRegistration:
         assert expected.issubset(registered_names)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_dbt_tools_registered(self, mock_orch_cls):
         """dbt management module should register its 5 tools."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
@@ -452,13 +453,13 @@ class TestToolRegistration:
         assert expected.issubset(registered_names)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_metadata_tools_registered(self, mock_orch_cls):
         """Metadata discovery module should register its 2 tools."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
@@ -466,13 +467,13 @@ class TestToolRegistration:
         assert expected.issubset(registered_names)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_orchestration_tools_registered(self, mock_orch_cls):
         """Orchestration execution module should register its 3 tools."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
@@ -480,30 +481,30 @@ class TestToolRegistration:
         assert expected.issubset(registered_names)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_connection_profiles_tool_registered(self, mock_orch_cls):
         """Connection profiles module should register its 1 tool."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         app = server.create_app()
 
         registered_names = {t.name for t in _registered_tools(app)}
         assert "connection_profiles" in registered_names
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_tool_registration_error_is_non_fatal(self, mock_orch_cls):
         """If one tool module fails to register, the others should still succeed."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         # Force dbt_management.register_dbt_tools to raise
         with patch(
-            "elt_mcp_server.server.dbt_management.register_dbt_tools",
+            "teradata_etl_mcp_server.server.dbt_management.register_dbt_tools",
             side_effect=Exception("dbt import error"),
         ):
             app = server.create_app()
@@ -520,7 +521,7 @@ class TestToolRegistration:
 
 
 class TestValidateStartup:
-    """Tests for ELTMCPServer._validate_startup."""
+    """Tests for TeradataETLMCPServer._validate_startup."""
 
     @patch.dict(os.environ, {}, clear=True)
     def test_validation_skipped_when_disabled(self):
@@ -528,7 +529,7 @@ class TestValidateStartup:
         settings = _make_mock_settings()
         settings.mcp.validate_on_startup = False
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         assert server._validate_startup() is True
 
     @patch.dict(os.environ, {}, clear=True)
@@ -545,7 +546,7 @@ class TestValidateStartup:
             "errors": [],
         }
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         assert server._validate_startup() is True
 
     @patch.dict(os.environ, {}, clear=True)
@@ -563,7 +564,7 @@ class TestValidateStartup:
             "errors": ["Teradata: Connection refused"],
         }
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         assert server._validate_startup() is False
 
     @patch.dict(os.environ, {}, clear=True)
@@ -581,7 +582,7 @@ class TestValidateStartup:
             "errors": ["Teradata: Connection refused"],
         }
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         assert server._validate_startup() is True
 
     @patch.dict(os.environ, {}, clear=True)
@@ -592,7 +593,7 @@ class TestValidateStartup:
         settings.mcp.fail_fast_on_startup = True
         settings.validate_connectivity.side_effect = Exception("Network error")
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         assert server._validate_startup() is False
 
     @patch.dict(os.environ, {}, clear=True)
@@ -603,7 +604,7 @@ class TestValidateStartup:
         settings.mcp.fail_fast_on_startup = False
         settings.validate_connectivity.side_effect = Exception("Network error")
 
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         assert server._validate_startup() is True
 
 
@@ -613,14 +614,14 @@ class TestValidateStartup:
 
 
 class TestCleanup:
-    """Tests for ELTMCPServer.cleanup."""
+    """Tests for TeradataETLMCPServer.cleanup."""
 
     @pytest.mark.asyncio
     @patch.dict(os.environ, {}, clear=True)
     async def test_cleanup_calls_orchestrator_cleanup(self):
         """cleanup() should call orchestrator.cleanup() when orchestrator is set."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         server.orchestrator = _make_mock_orchestrator()
 
         await server.cleanup()
@@ -632,7 +633,7 @@ class TestCleanup:
     async def test_cleanup_handles_no_orchestrator(self):
         """cleanup() should not fail when orchestrator is None."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         server.orchestrator = None
 
         # Should not raise
@@ -643,7 +644,7 @@ class TestCleanup:
     async def test_cleanup_handles_orchestrator_error(self):
         """cleanup() should log but not raise when orchestrator.cleanup() fails."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         mock_orch = _make_mock_orchestrator()
         mock_orch.cleanup = AsyncMock(side_effect=Exception("Cleanup failed"))
@@ -662,7 +663,7 @@ class TestCreateAppFactory:
     """Tests for the module-level create_app() factory."""
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_function(self, mock_orch_cls):
         """The module-level create_app() should return a FastMCP instance."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
@@ -673,7 +674,7 @@ class TestCreateAppFactory:
         assert isinstance(app, FastMCP)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_create_app_with_lifespan_sets_global_instance(self, mock_orch_cls):
         """create_app_with_lifespan should set the global server instance."""
         mock_orch_cls.return_value = _make_mock_orchestrator()
@@ -698,7 +699,7 @@ class TestGlobalInstanceManagement:
     def test_set_and_get_server_instance(self):
         """set_server_instance/get_server_instance round-trip."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         set_server_instance(server)
         assert get_server_instance() is server
@@ -707,7 +708,7 @@ class TestGlobalInstanceManagement:
     def test_get_orchestrator_returns_none_without_server(self):
         """get_orchestrator() returns None when no global server is set."""
         # Reset global
-        import elt_mcp_server.server as srv_mod
+        import teradata_etl_mcp_server.server as srv_mod
         srv_mod._server_instance = None
 
         assert get_orchestrator() is None
@@ -716,7 +717,7 @@ class TestGlobalInstanceManagement:
     def test_get_orchestrator_returns_orchestrator(self):
         """get_orchestrator() returns the server's orchestrator."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         mock_orch = _make_mock_orchestrator()
         server.orchestrator = mock_orch
         set_server_instance(server)
@@ -726,7 +727,7 @@ class TestGlobalInstanceManagement:
     @patch.dict(os.environ, {}, clear=True)
     def test_get_settings_returns_none_without_server(self):
         """get_settings() returns None when no global server is set."""
-        import elt_mcp_server.server as srv_mod
+        import teradata_etl_mcp_server.server as srv_mod
         srv_mod._server_instance = None
 
         assert get_settings() is None
@@ -735,7 +736,7 @@ class TestGlobalInstanceManagement:
     def test_get_settings_returns_settings(self):
         """get_settings() returns the server's settings."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         set_server_instance(server)
 
         assert get_settings() is settings
@@ -744,7 +745,7 @@ class TestGlobalInstanceManagement:
     def test_get_logger_returns_server_logger(self):
         """get_logger() returns the server's logger when instance exists."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         set_server_instance(server)
 
         assert get_logger() is server.logger
@@ -752,12 +753,12 @@ class TestGlobalInstanceManagement:
     @patch.dict(os.environ, {}, clear=True)
     def test_get_logger_returns_fallback_without_server(self):
         """get_logger() returns a fallback logger when no server instance exists."""
-        import elt_mcp_server.server as srv_mod
+        import teradata_etl_mcp_server.server as srv_mod
         srv_mod._server_instance = None
 
         logger = get_logger()
         assert isinstance(logger, logging.Logger)
-        assert logger.name == "elt_mcp_server"
+        assert logger.name == "teradata_etl_mcp_server"
 
 
 # ---------------------------------------------------------------------------
@@ -773,7 +774,7 @@ class TestLifespan:
     async def test_lifespan_calls_cleanup_on_exit(self):
         """On exiting the lifespan context, server.cleanup() should be called."""
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         server.orchestrator = _make_mock_orchestrator()
         set_server_instance(server)
 
@@ -788,7 +789,7 @@ class TestLifespan:
     @patch.dict(os.environ, {}, clear=True)
     async def test_lifespan_handles_no_server_instance(self):
         """Lifespan should not fail when no global server instance is set."""
-        import elt_mcp_server.server as srv_mod
+        import teradata_etl_mcp_server.server as srv_mod
         srv_mod._server_instance = None
 
         mock_app = MagicMock()
@@ -802,37 +803,37 @@ class TestLifespan:
 
 
 class TestInitializeOrchestrator:
-    """Tests for ELTMCPServer._initialize_orchestrator."""
+    """Tests for TeradataETLMCPServer._initialize_orchestrator."""
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_initializes_orchestrator(self, mock_orch_cls):
         """_initialize_orchestrator should create a PipelineOrchestrator."""
         mock_orch = _make_mock_orchestrator()
         mock_orch_cls.return_value = mock_orch
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         result = server._initialize_orchestrator()
 
         mock_orch_cls.assert_called_once_with(settings)
         assert result is mock_orch
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_preloads_airbyte_registry(self, mock_orch_cls):
         """_initialize_orchestrator should attempt to preload the Airbyte registry."""
         mock_orch = _make_mock_orchestrator()
         mock_orch_cls.return_value = mock_orch
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
         server._initialize_orchestrator()
 
         mock_orch.preload_airbyte_registry.assert_called_once()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_preload_failure_does_not_raise(self, mock_orch_cls):
         """If preload_airbyte_registry fails, it should log a warning but not raise."""
         mock_orch = _make_mock_orchestrator()
@@ -840,20 +841,20 @@ class TestInitializeOrchestrator:
         mock_orch_cls.return_value = mock_orch
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         # Should not raise
         result = server._initialize_orchestrator()
         assert result is mock_orch
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("elt_mcp_server.server.PipelineOrchestrator")
+    @patch("teradata_etl_mcp_server.server.PipelineOrchestrator")
     def test_orchestrator_creation_failure_raises(self, mock_orch_cls):
         """If PipelineOrchestrator() itself fails, the exception should propagate."""
         mock_orch_cls.side_effect = Exception("Fatal init error")
 
         settings = _make_mock_settings()
-        server = ELTMCPServer(settings=settings)
+        server = TeradataETLMCPServer(settings=settings)
 
         with pytest.raises(Exception, match="Fatal init error"):
             server._initialize_orchestrator()
@@ -869,4 +870,4 @@ class TestVersionMetadata:
 
     def test_version_is_string(self):
         assert isinstance(__version__, str)
-        assert __version__ == "0.1.0"
+        assert __version__ == package_version

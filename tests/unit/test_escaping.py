@@ -7,7 +7,7 @@ Tests cover:
 """
 
 
-from elt_mcp_server.generators.escaping import (
+from teradata_etl_mcp_server.generators.escaping import (
     escape_for_python_literal,
     escape_single_quoted,
     escape_triple_quoted,

@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from elt_mcp_server.auth import TeradataAuth
-from elt_mcp_server.clients.ttu_client import (
+from teradata_etl_mcp_server.auth import TeradataAuth
+from teradata_etl_mcp_server.clients.ttu_client import (
     TTUClient,
     TTUCommandError,
     TTUNotInstalledError,
@@ -390,7 +390,7 @@ class TestTdloadJobVarRendering:
     """
 
     def test_td2_file_to_table_renders_user_password(self, tmp_path):
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         auth = TeradataAuth(
             host="h", port=1025, database="db",
@@ -410,7 +410,7 @@ class TestTdloadJobVarRendering:
     def test_jwt_file_to_table_omits_password(self, tmp_path):
         """JWT must NOT emit TargetUserPassword — tdload would prompt on
         stdin and hang. See reference doc matrix."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         auth = TeradataAuth(
             host="h", port=1025, database="db",
@@ -430,7 +430,7 @@ class TestTdloadJobVarRendering:
     def test_secret_file_to_table_uses_clientid_as_username(self, tmp_path):
         """SECRET wire form (tdload argv): user=client_id, LogonMechData=bare secret.
         Distinct from BTEQ's OIDC-grant form."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         auth = TeradataAuth(
             host="h", port=1025, database="db",
@@ -448,7 +448,7 @@ class TestTdloadJobVarRendering:
 
     def test_bearer_rejected_on_tdload(self, tmp_path):
         """BEARER requires CLIv2 config file (clispb.dat), can't go on argv."""
-        from elt_mcp_server.auth import AuthUnsupportedError, TeradataAuth
+        from teradata_etl_mcp_server.auth import AuthUnsupportedError, TeradataAuth
         client = _make_client(tmp_path)
         auth = TeradataAuth(
             host="h", port=1025, database="db",
@@ -471,7 +471,7 @@ class TestTdloadJobVarRendering:
 
         Regression guard for the post-review bug.
         """
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         jwt_target = TeradataAuth(
             host="h", port=1025, database="db",
@@ -494,7 +494,7 @@ class TestTdloadJobVarRendering:
 
     def test_table_to_table_cross_instance_td2(self, tmp_path):
         """Cross-instance TD2 still uses the legacy Source* kwarg shim."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         td2_target = TeradataAuth(
             host="tgt.example.com", port=1025, database="tgtdb",
@@ -528,7 +528,7 @@ class TestTdloadJobVarRendering:
 
         Regression guard for the Copilot-flagged bug.
         """
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         jwt_target = TeradataAuth(
             host="tgt.example.com", port=1025, database="tgtdb",
@@ -591,7 +591,7 @@ class TestTdloadJobVarRendering:
         env with the right ``LogonMech``/``LogonMechData`` for each
         mechanism. Verified via the auth.render_for_tdload() contract;
         tbuild itself is not spawned in this test."""
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         auth = TeradataAuth(
             host="h", port=1025, database="db",
             mechanism=mechanism, **extra,
@@ -613,7 +613,7 @@ class TestTdloadJobVarRendering:
         """BEARER still rejected via render_for_tdload — requires CLIv2
         config (clispb.dat with jws_private_key/jws_cert) that cannot be
         expressed via TPT attributes or argv."""
-        from elt_mcp_server.auth import AuthUnsupportedError, TeradataAuth
+        from teradata_etl_mcp_server.auth import AuthUnsupportedError, TeradataAuth
         client = _make_client(tmp_path)
         bearer_auth = TeradataAuth(
             host="h", port=1025, database="db",
@@ -635,7 +635,7 @@ class TestTdloadJobVarRendering:
 
         Regression guard for the Copilot-flagged bug.
         """
-        from elt_mcp_server.auth import TeradataAuth
+        from teradata_etl_mcp_server.auth import TeradataAuth
         client = _make_client(tmp_path)
         jwt_source = TeradataAuth(
             host="src.example.com", port=1025, database="srcdb",
@@ -729,7 +729,7 @@ class TestSecurity:
         def _isolated_mkstemp(prefix="tmp", suffix="", dir=None):
             return _orig_mkstemp(prefix=prefix, suffix=suffix, dir=str(isolated_tmp))
 
-        with patch("elt_mcp_server.clients.ttu_client.tempfile.mkstemp", side_effect=_isolated_mkstemp):
+        with patch("teradata_etl_mcp_server.clients.ttu_client.tempfile.mkstemp", side_effect=_isolated_mkstemp):
             client.execute_tpt_ddl(auth=_make_auth(), sql_statements=["SELECT 1"])
 
         remaining = glob.glob(os.path.join(str(isolated_tmp), "tpt_ddl_*"))

@@ -18,7 +18,7 @@ from enum import Enum
 from typing import Any
 from urllib.parse import urlparse, urlunparse
 
-from elt_mcp_server.response_sanitizer import safe_error_message
+from teradata_etl_mcp_server.response_sanitizer import safe_error_message
 
 logger = logging.getLogger(__name__)
 

@@ -26,13 +26,13 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from elt_mcp_server.clients.airbyte_client import AirbyteClient
-from elt_mcp_server.clients.async_airflow_client import AsyncAirflowClient
-from elt_mcp_server.clients.dbt_client import DBTClient
+from teradata_etl_mcp_server.clients.airbyte_client import AirbyteClient
+from teradata_etl_mcp_server.clients.async_airflow_client import AsyncAirflowClient
+from teradata_etl_mcp_server.clients.dbt_client import DBTClient
 
 # Import client classes
-from elt_mcp_server.clients.teradata_client import TeradataClient
-from elt_mcp_server.utils.validators import DataValidator
+from teradata_etl_mcp_server.clients.teradata_client import TeradataClient
+from teradata_etl_mcp_server.utils.validators import DataValidator
 
 
 # Optional service stubs (modules deleted or not present in src) to avoid ImportError

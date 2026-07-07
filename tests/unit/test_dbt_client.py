@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from elt_mcp_server.clients.dbt_client import (
+from teradata_etl_mcp_server.clients.dbt_client import (
     DBTClient,
     DbtClient,
     DBTClientError,

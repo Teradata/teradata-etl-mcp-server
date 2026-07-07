@@ -1,13 +1,13 @@
-# Teradata ETL MCP Extension
+# Teradata ETL MCP Server
 
 A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operations, integrating Teradata, Airbyte, Apache Airflow, and dbt for end-to-end data pipeline management.
+
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
 - [Features](#features)
 - [Architecture](#architecture)
-- [Installation](#installation)
 - [SSH Setup](#ssh-setup-bidirectional)
 - [Configuration](#configuration)
 - [Connection Profiles](#connection-profiles)
@@ -24,31 +24,65 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 
 ## Quick Start
 
+> **Audience**: End users who want to run the MCP server and use it with an LLM client (Copilot, Claude Desktop, Claude Code, etc.).
+
+### Prerequisites
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Python | 3.10 -- 3.13 | Required |
+| Teradata database | Any supported version | Required for Teradata operations |
+| Teradata Tools & Utilities (TTU) | 17.20+ | Required on MCP client for BTEQ/TdLoad/TPT execution |
+| OpenSSH client | Any | Required on MCP client for DAG deployment to Airflow |
+| OpenSSH server | Any | Required on MCP client if Airflow executes BTEQ/TdLoad remotely via SSH |
+| Apache Airflow | 2.x | Optional -- needed for DAG orchestration |
+| Airbyte | OSS | Optional -- needed for data replication |
+| dbt + dbt-teradata | >=1.7,<2.0 + 0.19.0+ | Optional -- needed for transformations |
+
+### Steps
+
 ```bash
-# 1. Clone and install
-git clone https://github.com/Teradata/teradata-etl-mcp-server.git
-cd teradata-etl-mcp-server
+# 1. Clone the repository
+git clone <repository-url>
+cd devtools-etl-mcp-server
+
+# 2. Create and activate a virtual environment
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux/macOS
+source .venv/bin/activate
+
+# 3. Install the package with all extras (includes all optional dependencies)
 pip install -e ".[dev,all]"
 
-# 2. Create a workspace folder outside the source repo
-mkdir ../teradata-etl-mcp-test && cd ../teradata-etl-mcp-test
-cp ../teradata-etl-mcp-server/.env.example .env
-cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
-
-# 3. Edit .env — only Teradata credentials are required to start
-#    Required: TERADATA_HOST, TERADATA_USERNAME, TERADATA_PASSWORD
-
-# 4. Edit connections.yaml — update hosts/credentials for your sources
-
-# 5. Configure your MCP client (.vscode/mcp.json or claude_desktop_config.json)
-#    { "servers": { "etl-mcp": { "command": "etl-mcp-server",
-#      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"] } } }
-
-# 6. Start the server
-etl-mcp-server --env-file .env
 ```
 
-> **Minimum requirement**: Python 3.10+, a Teradata host, and an MCP client (Claude Desktop or VS Code with Copilot extension). Airflow, Airbyte, and dbt are all optional.
+### Post-install Setup
+
+> Create a **separate workspace folder** for configuration files — do not place `.env` or `connections.yaml` inside the source repo (it is protected by pre-commit hooks that block `.env` commits).
+
+```bash
+# 4. Create a dedicated workspace folder outside the source repo
+mkdir ../teradata-etl-mcp-workspace
+cd ../teradata-etl-mcp-workspace
+
+# 5. Copy templates from the source repo
+cp ../devtools-etl-mcp-server/.env.example .env
+cp ../devtools-etl-mcp-server/connections.yaml.example connections.yaml
+
+# 6. Edit .env with your Teradata, Airflow, Airbyte, and dbt settings
+# 7. Edit connections.yaml with your connection profiles (see Connection Profiles section)
+```
+
+### Verify Installation
+
+```bash
+# Start the server (stdio transport, default)
+python -m teradata_etl_mcp_server
+```
 
 ---
 
@@ -142,71 +176,7 @@ Response: sanitized -- LLM sees success status but NO passwords
 
 ---
 
-## Installation
-
-> **Audience**: End users who want to run the MCP server and use it with an LLM client (Copilot, Claude Desktop, Claude Code, etc.).
-
-### Prerequisites
-
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| Python | 3.10 -- 3.13 | Required |
-| Teradata database | Any supported version | Required for Teradata operations |
-| Teradata Tools & Utilities (TTU) | 17.20+ | Required on MCP client for BTEQ/TdLoad/TPT execution |
-| OpenSSH client | Any | Required on MCP client for DAG deployment to Airflow |
-| OpenSSH server | Any | Required on MCP client if Airflow executes BTEQ/TdLoad remotely via SSH |
-| Apache Airflow | 2.x | Optional -- needed for DAG orchestration |
-| Airbyte | OSS | Optional -- needed for data replication |
-| dbt + dbt-teradata | >=1.7,<2.0 + 0.19.0+ | Optional -- needed for transformations |
-
-### Steps
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Teradata/teradata-etl-mcp-server.git
-cd teradata-etl-mcp-server
-
-# 2. Create and activate a virtual environment
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# Linux/macOS
-source .venv/bin/activate
-
-# 3. Install the package with all extras (includes all optional dependencies)
-pip install -e ".[dev,all]"
-
-```
-
-```
-
-### Post-install Setup
-
-> Create a **separate workspace folder** for configuration files — do not place `.env` or `connections.yaml` inside the source repo (it is protected by pre-commit hooks that block `.env` commits).
-
-```bash
-# 5. Create a dedicated workspace folder outside the source repo
-mkdir ../teradata-etl-mcp-test
-cd ../teradata-etl-mcp-test
-
-# 6. Copy templates from the source repo
-cp ../teradata-etl-mcp-server/.env.example .env
-cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
-
-# 7. Edit .env with your Teradata, Airflow, Airbyte, and dbt settings
-# 8. Edit connections.yaml with your connection profiles (see Connection Profiles section)
-```
-
-### Verify Installation
-
-```bash
-# Start the server (stdio transport, default)
-python -m elt_mcp_server
-```
-
-### SSH Setup (Bidirectional)
+## SSH Setup (Bidirectional)
 
 For DAG deployment to Airflow and runtime BTEQ/TdLoad/TPT execution, bidirectional SSH is required between the MCP client and Airflow server.
 
@@ -303,8 +273,9 @@ Key sections in `.env.example`:
 | | `PIPELINE_DEFAULT_SCHEDULE_INTERVAL` | Default schedule for generated DAGs | No (default: `@daily`) |
 | | `PIPELINE_GENERATE_DBT_BY_DEFAULT` | Auto-generate dbt models with pipelines | No (default: `true`) |
 | **MCP Server** | `MCP_LOG_LEVEL` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` | No (default: `INFO`) |
-| | `MCP_LOG_FILE` | Log file path | No (default: `./logs/etl-mcp-server.log`) |
+| | `MCP_LOG_FILE` | Log file path | No (default: `./logs/teradata-etl-mcp-server.log`) |
 | | `MCP_FAIL_FAST_ON_STARTUP` | Crash on connectivity failure at startup | No (default: `false`) |
+| | `MCP_REDIS_URL` | Redis URL for distributed circuit breaker | No |
 | **TTU** | `TTU_ENABLED` | Enable local TPT/BTEQ/TdLoad execution | No (default: `false`) |
 | | `TTU_TTU_VERSION` | TTU version (e.g., `17.20`); auto-detected if not set | No |
 | | `TTU_TPT_BINARY_PATH` | Path to `tbuild` binary (auto-detected from version) | No |
@@ -398,10 +369,10 @@ aliases:
 
 ```bash
 # Start the server (stdio transport — works with any MCP client)
-python -m elt_mcp_server
+python -m teradata_etl_mcp_server
 
 # Or using the console script
-etl-mcp-server
+teradata-etl-mcp-server
 ```
 
 ### Using with Claude Desktop
@@ -411,9 +382,9 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "etl-mcp": {
-      "command": "etl-mcp-server",
-      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"]
+    "teradata-etl-mcp": {
+      "command": "teradata-etl-mcp-server",
+      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-workspace/.env"]
     }
   }
 }
@@ -428,15 +399,15 @@ Add to your VS Code MCP configuration (`.vscode/mcp.json` in your workspace):
 ```json
 {
   "servers": {
-    "etl-mcp": {
-      "command": "etl-mcp-server",
-      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-test/.env"]
+    "teradata-etl-mcp": {
+      "command": "teradata-etl-mcp-server",
+      "args": ["--env-file", "/absolute/path/to/teradata-etl-mcp-workspace/.env"]
     }
   }
 }
 ```
 
-> Use an absolute path to `.env`. On Windows use forward slashes or escaped backslashes: `C:/Users/you/teradata-etl-mcp-test/.env`.
+> Use an absolute path to `.env`. On Windows use forward slashes or escaped backslashes: `C:/Users/you/teradata-etl-mcp-workspace/.env`.
 
 ### Example: Create an Airbyte Pipeline
 
@@ -554,8 +525,8 @@ that selects the operation. This keeps the MCP tool list concise while preservin
 
 ```bash
 # Clone and install with dev dependencies
-git clone https://github.com/Teradata/teradata-etl-mcp-server.git
-cd teradata-etl-mcp-server
+git clone <repository-url>
+cd devtools-etl-mcp-server
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # Linux/macOS
@@ -710,9 +681,9 @@ pre-commit run bandit
 ## Project Structure
 
 ```
-teradata-etl-mcp-server/
+devtools-etl-mcp-server/
 |-- src/
-|   |-- elt_mcp_server/
+|   |-- teradata_etl_mcp_server/
 |       |-- __init__.py
 |       |-- __main__.py              # Console script entrypoint
 |       |-- main.py                  # CLI (argparse, signal handling, async)
@@ -832,3 +803,5 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines 
 ## License
 
 This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+
+---

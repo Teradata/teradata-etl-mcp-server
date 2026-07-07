@@ -1321,7 +1321,7 @@ def register_pipeline_tools(orchestrator: PipelineOrchestrator) -> dict[str, Any
 
             # Resolve defaults from orchestrator settings
             settings = orchestrator.settings
-            dag_owner = owner or getattr(settings.airflow, "default_owner", "elt_mcp_server")
+            dag_owner = owner or getattr(settings.airflow, "default_owner", "teradata_etl_mcp_server")
             ab_conn_id = airbyte_conn_id or "airbyte_default"
 
             # Validate output_filename against the DAGs directory (path containment).
@@ -1698,7 +1698,7 @@ def register_pipeline_tools(orchestrator: PipelineOrchestrator) -> dict[str, Any
                 )
                 if use_ssh_for_dbt:
                     logger.info("Auto-enabled SSH for dbt (remote Airflow host configured)")
-            dag_owner = owner or getattr(settings.airflow, "default_owner", "elt_mcp_server")
+            dag_owner = owner or getattr(settings.airflow, "default_owner", "teradata_etl_mcp_server")
 
             # Ensure SSH connection exists in Airflow when SSH execution is requested
             if use_ssh_for_dbt:
@@ -1909,7 +1909,7 @@ def register_pipeline_tools(orchestrator: PipelineOrchestrator) -> dict[str, Any
                 if use_ssh_for_dbt:
                     logger.info("Auto-enabled SSH for dbt (remote Airflow host configured)")
 
-            dag_owner = owner or getattr(settings.airflow, "default_owner", "elt_mcp_server")
+            dag_owner = owner or getattr(settings.airflow, "default_owner", "teradata_etl_mcp_server")
             ab_conn_id = airbyte_conn_id or "airbyte_default"
             ssh_conn_id = "ssh_default"
             resolved_source_name = source_name or "source"
@@ -2313,7 +2313,7 @@ def register_pipeline_tools(orchestrator: PipelineOrchestrator) -> dict[str, Any
             import ast
             import sys
 
-            from elt_mcp_server.generators.airflow_dag_generator import AirflowDAGGenerator
+            from teradata_etl_mcp_server.generators.airflow_dag_generator import AirflowDAGGenerator
 
             validation_errors: list[str] = []
             for dag_file in files_to_deploy:

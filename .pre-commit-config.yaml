@@ -1,4 +1,4 @@
-# Pre-commit hooks for ELT MCP Server
+# Pre-commit hooks for Teradata ETL MCP Server
 # Runs on every commit to catch issues before they reach the remote.
 #
 # Setup:
@@ -75,9 +75,9 @@ repos:
       # String-literal joins (e.g. self.project_dir / "models") are allowed.
       - id: no-unsafe-generator-paths
         name: no raw file I/O in generators
-        entry: python -c "import sys,re,pathlib;pat=re.compile(r'self\.(project_dir|output_dir|dags_folder)\s*/\s*(?![\x22\x27])[^\s)]+|(?<![a-zA-Z0-9_.])open\s*\(');hits=[f'{f}:{i+1}: {l.strip()}' for f in sys.argv[1:] for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if pat.search(l)];sys.exit('Generators must use SafeFileWriter / safe_join_within, not raw path joins or open():\n'+chr(10).join(hits)) if hits else None"
+        entry: python -c "import sys,re,pathlib;pat=re.compile(r'self\.(project_dir|output_dir|dags_folder)\s*/\s*(?![\x22\x27])[^\s)]+|(?<![a-zA-Z0-9_.])open\s*\(');hits=[f'{f}:{i+1} {l.strip()}' for f in sys.argv[1:] for i,l in enumerate(pathlib.Path(f).read_text(encoding='utf-8',errors='ignore').splitlines()) if pat.search(l)];sys.exit('Generators must use SafeFileWriter / safe_join_within, not raw path joins or open():\n'+chr(10).join(hits)) if hits else None"
         language: system
-        files: ^src/elt_mcp_server/generators/.*\.py$
+        files: ^src/teradata_etl_mcp_server/generators/.*\.py$
         types: [python]
 
       # ── File hygiene ────────────────────────────────────────────

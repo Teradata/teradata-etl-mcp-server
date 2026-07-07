@@ -10,9 +10,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from elt_mcp_server.auth import TeradataAuth
-from elt_mcp_server.clients.teradata_client import TeradataClient
-from elt_mcp_server.clients.ttu_client import TTUClient
+from teradata_etl_mcp_server.auth import TeradataAuth
+from teradata_etl_mcp_server.clients.teradata_client import TeradataClient
+from teradata_etl_mcp_server.clients.ttu_client import TTUClient
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -52,8 +52,8 @@ def _make_auth(mechanism: str = "TD2", **overrides) -> TeradataAuth:
 
 def _make_td_client(mechanism: str = "TD2", **overrides) -> TeradataClient:
     auth = _make_auth(mechanism=mechanism, **overrides)
-    with patch("elt_mcp_server.clients.teradata_client.teradatasql", MagicMock()):
-        with patch("elt_mcp_server.clients.teradata_client.pd", MagicMock()):
+    with patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql", MagicMock()):
+        with patch("teradata_etl_mcp_server.clients.teradata_client.pd", MagicMock()):
             return TeradataClient(auth=auth)
 
 
@@ -124,7 +124,7 @@ class TestTeradataClientConnection:
     """Verifies the auth identity reaches teradatasql.connect() through
     TeradataAuth.render_for_teradatasql()."""
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_td2(self, mock_td):
         client = _make_td_client("TD2")
         client._get_connection()
@@ -134,7 +134,7 @@ class TestTeradataClientConnection:
         assert call_kwargs["password"] == "testpass"
         assert "logdata" not in call_kwargs
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_ldap(self, mock_td):
         client = _make_td_client("LDAP")
         client._get_connection()
@@ -143,7 +143,7 @@ class TestTeradataClientConnection:
         assert call_kwargs["user"] == "testuser"
         assert call_kwargs["password"] == "testpass"
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_jwt(self, mock_td):
         client = _make_td_client("JWT", logdata="token=eyJ.abc.def")
         client._get_connection()
@@ -153,7 +153,7 @@ class TestTeradataClientConnection:
         assert "user" not in call_kwargs
         assert "password" not in call_kwargs
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_secret(self, mock_td):
         client = _make_td_client(
             "SECRET", oidc_clientid="cid", logdata="csecret"
@@ -165,7 +165,7 @@ class TestTeradataClientConnection:
         assert call_kwargs["logdata"] == "csecret"
         assert "user" not in call_kwargs
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_bearer(self, mock_td):
         client = _make_td_client(
             "BEARER",
@@ -181,14 +181,14 @@ class TestTeradataClientConnection:
         assert call_kwargs["jws_cert"] == "cert.pem"
         assert "user" not in call_kwargs
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_empty_database_not_passed(self, mock_td):
         client = _make_td_client("TD2", database="")
         client._get_connection()
         call_kwargs = mock_td.connect.call_args[1]
         assert "database" not in call_kwargs
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_nonempty_database_passed(self, mock_td):
         client = _make_td_client("TD2", database="mydb")
         client._get_connection()
@@ -204,9 +204,9 @@ class TestTeradataClientConnection:
 class TestAirbyteClientAuth:
     @pytest.mark.asyncio
     async def test_obtain_token_success(self):
-        from elt_mcp_server.clients.airbyte_client import AirbyteClient
+        from teradata_etl_mcp_server.clients.airbyte_client import AirbyteClient
 
-        with patch("elt_mcp_server.clients.airbyte_client.httpx") as mock_httpx:
+        with patch("teradata_etl_mcp_server.clients.airbyte_client.httpx") as mock_httpx:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = {"access_token": "test_token_123"}
@@ -228,7 +228,7 @@ class TestAirbyteClientAuth:
 
     @pytest.mark.asyncio
     async def test_obtain_token_no_credentials(self):
-        from elt_mcp_server.clients.airbyte_client import AirbyteClient
+        from teradata_etl_mcp_server.clients.airbyte_client import AirbyteClient
 
         client = AirbyteClient(
             base_url="http://localhost:8000",
@@ -240,9 +240,9 @@ class TestAirbyteClientAuth:
 
     @pytest.mark.asyncio
     async def test_obtain_token_failure(self):
-        from elt_mcp_server.clients.airbyte_client import AirbyteClient
+        from teradata_etl_mcp_server.clients.airbyte_client import AirbyteClient
 
-        with patch("elt_mcp_server.clients.airbyte_client.httpx") as mock_httpx:
+        with patch("teradata_etl_mcp_server.clients.airbyte_client.httpx") as mock_httpx:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock()
@@ -264,7 +264,7 @@ class TestAirbyteClientAuth:
 
 
 class TestJdbcUrlLogging:
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_td2_masks_password(self, mock_td, caplog):
         import logging
         with caplog.at_level(logging.INFO):
@@ -276,7 +276,7 @@ class TestJdbcUrlLogging:
         assert "PASSWORD=***" in caplog.text
         assert "testpass" not in caplog.text
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_jwt_masks_logdata(self, mock_td, caplog):
         import logging
         with caplog.at_level(logging.INFO):
@@ -286,7 +286,7 @@ class TestJdbcUrlLogging:
         assert "LOGDATA=***" in caplog.text
         assert "eyJsecret" not in caplog.text
 
-    @patch("elt_mcp_server.clients.teradata_client.teradatasql")
+    @patch("teradata_etl_mcp_server.clients.teradata_client.teradatasql")
     def test_bearer_shows_file_paths(self, mock_td, caplog):
         import logging
         with caplog.at_level(logging.INFO):
@@ -309,7 +309,7 @@ class TestJdbcUrlLogging:
 
 class TestConfigAuthFields:
     def test_teradata_defaults(self):
-        from elt_mcp_server.config import TeradataSettings
+        from teradata_etl_mcp_server.config import TeradataSettings
 
         with patch.dict("os.environ", {
             "TERADATA_HOST": "h",
@@ -325,7 +325,7 @@ class TestConfigAuthFields:
             assert ts.sslca == ""
 
     def test_teradata_jwt_from_env(self):
-        from elt_mcp_server.config import TeradataSettings
+        from teradata_etl_mcp_server.config import TeradataSettings
 
         with patch.dict("os.environ", {
             "TERADATA_HOST": "h",
@@ -339,7 +339,7 @@ class TestConfigAuthFields:
             assert ts.logdata.get_secret_value() == "token=eyJ..."
 
     def test_teradata_bearer_from_env(self):
-        from elt_mcp_server.config import TeradataSettings
+        from teradata_etl_mcp_server.config import TeradataSettings
 
         with patch.dict("os.environ", {
             "TERADATA_HOST": "h",
@@ -359,7 +359,7 @@ class TestConfigAuthFields:
             assert ts.sslca == "ca.pem"
 
     def test_airflow_enabled_field(self):
-        from elt_mcp_server.config import AirflowSettings
+        from teradata_etl_mcp_server.config import AirflowSettings
 
         with patch.dict("os.environ", {
             "AIRFLOW_ENABLED": "true",
@@ -369,7 +369,7 @@ class TestConfigAuthFields:
             assert af.enabled is True
 
     def test_airbyte_client_fields(self):
-        from elt_mcp_server.config import AirbyteSettings
+        from teradata_etl_mcp_server.config import AirbyteSettings
 
         with patch.dict("os.environ", {
             "AIRBYTE_ENABLED": "true",

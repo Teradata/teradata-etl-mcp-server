@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from elt_mcp_server.generators.airflow_dag_generator import (
+from teradata_etl_mcp_server.generators.airflow_dag_generator import (
     AirflowDAGGenerator,
     AirflowDagGenerator,
     AirflowDAGGeneratorError,
@@ -2050,7 +2050,7 @@ class TestDagGeneratorSafeWriterFlags:
 
     def test_airflow_tdload_generator_no_backups_on_regenerate(self, tmp_path):
         """Same invariant for AirflowTdLoadDAGGenerator."""
-        from elt_mcp_server.generators.airflow_tdload_dag_generator import (
+        from teradata_etl_mcp_server.generators.airflow_tdload_dag_generator import (
             AirflowTdLoadDAGGenerator,
         )
 

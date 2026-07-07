@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from elt_mcp_server.utils.file_operations import (
+from teradata_etl_mcp_server.utils.file_operations import (
     FileOperationError,
     SafeFileWriter,
     UnsafePathError,

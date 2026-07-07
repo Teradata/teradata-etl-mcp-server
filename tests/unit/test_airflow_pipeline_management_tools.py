@@ -15,12 +15,12 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 import yaml
 
-from elt_mcp_server.clients.airbyte_client import (
+from teradata_etl_mcp_server.clients.airbyte_client import (
     AirbyteAPIError,
     AirbyteConnectionError,
     CircuitBreakerOpen,
 )
-from elt_mcp_server.tools.airflow_pipeline_management import (
+from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
     _validate_dbt_target,
     register_pipeline_tools,
 )
@@ -75,7 +75,7 @@ def _make_orchestrator(tmp_path: Any = None, **overrides: Any) -> Mock:
     # Airflow settings
     orch.settings.airflow = Mock()
     orch.settings.airflow.base_url = "http://localhost:8080"
-    orch.settings.airflow.default_owner = "elt_mcp_server"
+    orch.settings.airflow.default_owner = "teradata_etl_mcp_server"
     orch.settings.airflow.remote_host = None
     orch.settings.airflow.remote_user = None
     orch.settings.airflow.remote_ssh_key = None
@@ -3377,21 +3377,21 @@ class TestValidateOutputFilenameHelper:
     """Unit tests for the module-level _validate_output_filename helper."""
 
     def test_applies_default_filename(self, tmp_path):
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _validate_output_filename,
         )
         result = _validate_output_filename(None, "my_dag", tmp_path)
         assert result == "my_dag.py"
 
     def test_accepts_safe_caller_filename(self, tmp_path):
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _validate_output_filename,
         )
         result = _validate_output_filename("custom.py", "my_dag", tmp_path)
         assert result == "custom.py"
 
     def test_rejects_parent_traversal(self, tmp_path):
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _validate_output_filename,
         )
         with pytest.raises(ValueError, match="invalid output_filename"):
@@ -3400,7 +3400,7 @@ class TestValidateOutputFilenameHelper:
     def test_rejects_absolute_path(self, tmp_path):
         import sys
 
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _validate_output_filename,
         )
         abs_path = "/etc/cron.d/pwn" if sys.platform != "win32" else r"C:\Windows\pwn.py"
@@ -3408,7 +3408,7 @@ class TestValidateOutputFilenameHelper:
             _validate_output_filename(abs_path, "my_dag", tmp_path)
 
     def test_rejects_null_byte(self, tmp_path):
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _validate_output_filename,
         )
         with pytest.raises(ValueError, match="invalid output_filename"):
@@ -3442,7 +3442,7 @@ class TestSSHCredentialMissingMessages:
         from pathlib import Path
 
         src = Path(__file__).parent.parent.parent / (
-            "src/elt_mcp_server/tools/airflow_pipeline_management.py"
+            "src/teradata_etl_mcp_server/tools/airflow_pipeline_management.py"
         )
         text = src.read_text(encoding="utf-8")
 
@@ -3473,12 +3473,12 @@ class TestSSHHostKeyPolicyWarning:
 
         import paramiko as _paramiko
 
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _configure_ssh_host_key_policy,
         )
 
         mock_ssh = Mock()
-        with caplog.at_level(logging.WARNING, logger="elt_mcp_server.tools.airflow_pipeline_management"):
+        with caplog.at_level(logging.WARNING, logger="teradata_etl_mcp_server.tools.airflow_pipeline_management"):
             _configure_ssh_host_key_policy(
                 mock_ssh, False, context="test_caller"
             )
@@ -3501,12 +3501,12 @@ class TestSSHHostKeyPolicyWarning:
 
         import paramiko as _paramiko
 
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _configure_ssh_host_key_policy,
         )
 
         mock_ssh = Mock()
-        with caplog.at_level(logging.WARNING, logger="elt_mcp_server.tools.airflow_pipeline_management"):
+        with caplog.at_level(logging.WARNING, logger="teradata_etl_mcp_server.tools.airflow_pipeline_management"):
             _configure_ssh_host_key_policy(
                 mock_ssh, True, context="strict_caller"
             )
@@ -3530,13 +3530,13 @@ class TestSSHHostKeyPolicyWarning:
 
         import paramiko as _paramiko
 
-        from elt_mcp_server.tools.airflow_pipeline_management import (
+        from teradata_etl_mcp_server.tools.airflow_pipeline_management import (
             _configure_ssh_host_key_policy,
         )
 
         mock_ssh = Mock()
         mock_ssh.load_system_host_keys.side_effect = OSError("known_hosts corrupted")
-        with caplog.at_level(logging.WARNING, logger="elt_mcp_server.tools.airflow_pipeline_management"):
+        with caplog.at_level(logging.WARNING, logger="teradata_etl_mcp_server.tools.airflow_pipeline_management"):
             _configure_ssh_host_key_policy(
                 mock_ssh, True, context="failing_known_hosts"
             )
