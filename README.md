@@ -43,8 +43,8 @@ A unified Model Context Protocol (MCP) server for comprehensive ELT/ETL operatio
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd devtools-etl-mcp-server
+git clone https://github.com/Teradata/teradata-etl-mcp-server.git
+cd teradata-etl-mcp-server
 
 # 2. Create and activate a virtual environment
 python -m venv .venv
@@ -70,8 +70,8 @@ mkdir ../teradata-etl-mcp-workspace
 cd ../teradata-etl-mcp-workspace
 
 # 5. Copy templates from the source repo
-cp ../devtools-etl-mcp-server/.env.example .env
-cp ../devtools-etl-mcp-server/connections.yaml.example connections.yaml
+cp ../teradata-etl-mcp-server/.env.example .env
+cp ../teradata-etl-mcp-server/connections.yaml.example connections.yaml
 
 # 6. Edit .env with your Teradata, Airflow, Airbyte, and dbt settings
 # 7. Edit connections.yaml with your connection profiles (see Connection Profiles section)
@@ -526,7 +526,7 @@ that selects the operation. This keeps the MCP tool list concise while preservin
 ```bash
 # Clone and install with dev dependencies
 git clone <repository-url>
-cd devtools-etl-mcp-server
+cd teradata-etl-mcp-server
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # Linux/macOS
@@ -681,7 +681,7 @@ pre-commit run bandit
 ## Project Structure
 
 ```
-devtools-etl-mcp-server/
+teradata-etl-mcp-server/
 |-- src/
 |   |-- teradata_etl_mcp_server/
 |       |-- __init__.py

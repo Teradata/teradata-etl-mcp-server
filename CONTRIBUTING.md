@@ -1,4 +1,4 @@
-# Contributing to devtools-etl-mcp-server
+# Contributing to teradata-etl-mcp-server
 
 ## Prerequisites
 
@@ -8,8 +8,8 @@
 ## Setup
 
 ```bash
-git clone https://github.com/Teradata-PE/devtools-etl-mcp-server.git
-cd devtools-etl-mcp-server
+git clone https://github.com/Teradata/teradata-etl-mcp-server.git
+cd teradata-etl-mcp-server
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 # Linux/macOS: source .venv/bin/activate
